@@ -5,13 +5,13 @@
     <input id="name" type="text" v-model="dictionary.title" />
     <br /><br />
     <button @click="createDict">新しい辞書を作る</button>
-    <button @click="deleteDict(data.documentId)">削除</button>
     <br /><br />
+
     <h3>辞書に単語を追加する</h3>
-    {{postsData}}
-    <div v-for="data in postsData.posts" :key="data">
+    <template v-for="data in postsData.posts" :key="data">
       {{ `辞書名：${data.title}` }}
-      <br/><br/>
+      <button @click="deleteDict(data.documentId)">削除</button>
+      <br /><br />
       <label for="word">単語:</label>
       <input id="word" type="text" v-model="dictContents.word" />
       <br /><br />
@@ -22,14 +22,18 @@
         v-model="dictContents.explanation"
       />
       <br /><br />
-      <button @click="addWordsExplanation(data.documentId)">追加</button>
-      <button @click="deleteWordsExplanation(data.documentId)">削除</button>
-      <br /><br />
-      <div v-for="item in data.words" :key="item">
-        {{ `単語：${item.word}` }}
-        {{ `解説：${item.explanation}` }}
-      </div>
-    </div>
+      <button @click="addWordExplanation(data, data.documentId, dictContents)">
+        追加
+      </button>
+      <h4>一覧</h4>
+      <template v-for="item in data.words" :key="item">
+        {{ `${item.word}: ${item.explanation}` }}
+        <button @click="deleteWordExplanation(data, data.documentId, item)">
+          削除
+        </button>
+        <br /><br />
+      </template>
+    </template>
   </div>
 </template>
 
@@ -50,20 +54,22 @@ export default defineComponent({
       title: "",
       words: [],
       timeStamp: {},
-      documentId: {}
+      documentId: {},
     });
     const dictContents = reactive<DictContents>({
       word: "",
-      explanation: ""
+      explanation: "",
     });
     const postsData = reactive<any>({ posts: [] });
 
     db.collection("dictionary_post_t")
       .orderBy("timeStamp", "desc")
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          postsData.posts.push(doc.data());
+      .onSnapshot(function (snapshot) {
+        snapshot.docChanges().forEach((change) => {
+          console.log(change.type);
+          if (change.type === "added") {
+            postsData.posts.push(change.doc.data());
+          }
         });
       });
 
@@ -73,37 +79,61 @@ export default defineComponent({
         title: dictionary.title,
         words: dictionary.words,
         timeStamp: firebase.firestore.Timestamp.now().toDate(),
-        documentId: ref.id
+        documentId: ref.id,
       });
       dictionary.title = "";
       dictionary.timeStamp = {};
     }
 
     async function deleteDict(documentId: any) {
-      await db
-        .collection("dictionary_post_t")
-        .doc(documentId)
-        .delete();
+      await db.collection("dictionary_post_t").doc(documentId).delete();
+      const index = postsData.posts.findIndex(
+        (dict: any) => dict.documentId === documentId
+      );
+      if (index !== -1) {
+        postsData.posts.splice(index, 1);
+      }
     }
 
-    async function addWordsExplanation(documentId: any) {
+    async function addWordExplanation(
+      data: any,
+      documentId: any,
+      words: DictContents
+    ) {
       await db
         .collection("dictionary_post_t")
         .doc(documentId)
         .update({
           words: firebase.firestore.FieldValue.arrayUnion({
-            word: dictContents.word,
-            explanation: dictContents.explanation
-          })
+            word: words.word,
+            explanation: words.explanation,
+          }),
         });
-      dictContents.word = "";
-      dictContents.explanation = "";
+      data.words.push({
+        word: words.word,
+        explanation: words.explanation,
+      });
+      words.word = "";
+      words.explanation = "";
     }
-    async function deleteWordsExplanation(documentId: any) {
+    async function deleteWordExplanation(
+      data: any,
+      documentId: any,
+      words: DictContents
+    ) {
       await db
         .collection("dictionary_post_t")
         .doc(documentId)
-        .delete();
+        .update({
+          words: firebase.firestore.FieldValue.arrayRemove({
+            word: words.word,
+            explanation: words.explanation,
+          }),
+        });
+      const index = data.words.findIndex((word: any) => word === words);
+      if (index !== -1) {
+        data.words.splice(index, 1);
+      }
     }
 
     return {
@@ -112,9 +142,10 @@ export default defineComponent({
       postsData,
       createDict,
       deleteDict,
-      addWordsExplanation
+      addWordExplanation,
+      deleteWordExplanation,
     };
-  }
+  },
 });
 </script>
 
