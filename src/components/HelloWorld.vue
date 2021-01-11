@@ -6,10 +6,10 @@
     <br /><br />
     <button @click="createDict">新しい辞書を作る</button>
     <br /><br />
-
     <h3>辞書に単語を追加する</h3>
     <template v-for="data in postsData.posts" :key="data">
       {{ `辞書名：${data.title}` }}
+      {{ data.uid }}
       <button @click="deleteDict(data.documentId)">削除</button>
       <br /><br />
       <label for="word">単語:</label>
@@ -40,7 +40,7 @@
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase";
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import { db } from "../plugins/firebase";
 
 export type SaveData = {
@@ -55,38 +55,55 @@ export default defineComponent({
       words: [],
       timeStamp: {},
       documentId: {},
+      uid: "",
     });
-    const dictContents = reactive<DictContents>({
+    const dictContents = {
       word: "",
       explanation: "",
-    });
+    };
     const postsData = reactive<any>({ posts: [] });
 
-    db.collection("dictionary_post_t")
-      .orderBy("timeStamp", "desc")
-      .onSnapshot(function (snapshot) {
-        snapshot.docChanges().forEach((change) => {
-          console.log(change.type);
-          if (change.type === "added") {
-            postsData.posts.push(change.doc.data());
-          }
-        });
-      });
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        db.collection("user")
+          .doc(firebase.auth().currentUser?.uid)
+          .collection("dictionary")
+          .orderBy("timeStamp", "desc")
+          .onSnapshot(function (snapshot) {
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "added") {
+                postsData.posts.push(change.doc.data());
+              }
+            });
+          });
+      }
+    });
 
     async function createDict() {
-      const ref = await db.collection("dictionary_post_t").doc();
-      ref.set({
+      const auth = await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid);
+      auth.set({
+        uid: await firebase.auth().currentUser?.uid,
+      });
+      const dict = auth.collection("dictionary").doc();
+      dict.set({
         title: dictionary.title,
         words: dictionary.words,
         timeStamp: firebase.firestore.Timestamp.now().toDate(),
-        documentId: ref.id,
+        documentId: dict.id,
       });
       dictionary.title = "";
       dictionary.timeStamp = {};
     }
 
     async function deleteDict(documentId: any) {
-      await db.collection("dictionary_post_t").doc(documentId).delete();
+      await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
+        .doc(documentId)
+        .delete();
       const index = postsData.posts.findIndex(
         (dict: any) => dict.documentId === documentId
       );
@@ -101,7 +118,9 @@ export default defineComponent({
       words: DictContents
     ) {
       await db
-        .collection("dictionary_post_t")
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
         .doc(documentId)
         .update({
           words: firebase.firestore.FieldValue.arrayUnion({
@@ -122,7 +141,9 @@ export default defineComponent({
       words: DictContents
     ) {
       await db
-        .collection("dictionary_post_t")
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
         .doc(documentId)
         .update({
           words: firebase.firestore.FieldValue.arrayRemove({

@@ -8,44 +8,39 @@
     <label for="password">パスワード:</label>
     <input id="password" type="password" v-model="state.password" />
     <br /><br />
-    <button @click="register">送信</button>
+    <button @click="signUp(state.email, state.password)">送信</button>
+    {{ `email: ${state.email}` }}
+    {{ `password: ${state.password}` }}
   </div>
 </template>
 
 <script lang="ts">
-import firebase from "firebase";
 import { defineComponent, reactive } from "vue";
 import { UserAuthentication } from "../types/user";
+import firebase from "../../src/plugins/firebase";
 
 export default defineComponent({
   setup() {
     const state = reactive<UserAuthentication>({
       email: "",
-      password: ""
+      password: "",
     });
-    async function register() {
+
+    async function signUp(email: string, password: string) {
       try {
-        await firebase
-          .auth()
-          .createUserWithEmailAndPassword(state.email, state.password);
-      } catch (error) {
-        console.log(error);
+        await firebase.signUp(email, password);
+      } catch (err) {
+        console.error(err);
+        alert("新規登録に失敗しました...");
       }
+      state.email = "";
+      state.password = "";
+      alert("新規登録に成功しました！");
     }
     return {
       state,
-      register
+      signUp,
     };
-  }
-  // methods: {
-  //   register() {
-  //     this.$store.dispatch("login", {
-  //       email: this.email,
-  //       password: this.password
-  //     });
-  //     this.email = "";
-  //     this.password = "";
-  //   }
-  // }
+  },
 });
 </script>

@@ -3,6 +3,7 @@ export interface Dictionary {
   words: DictContents[];
   timeStamp: any; // 型はあとで考える
   documentId: any;
+  uid: string;
 }
 
 export interface DictContents {
