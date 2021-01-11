@@ -21,21 +21,21 @@ export const db = firebase.initializeApp(config).firestore();
 
 export default {
   init() {
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   },
   async signUp(email: string, password: string) {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     await firebase.auth().createUserWithEmailAndPassword(email, password);
   },
   async login(email: string, password: string) {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     await firebase.auth().signInWithEmailAndPassword(email, password);
   },
   async logout() {
-    await firebase.auth().signOut()
+    await firebase.auth().signOut();
   },
-  onAuth() {
-    firebase.auth().onAuthStateChanged((user: any) => {
+  async onAuth() {
+    await firebase.auth().onAuthStateChanged((user: any) => {
       user = user ? user : {};
       store.commit('onAuthStateChanged', user);
       store.commit('onUserStatusChanged', user.uid ? true : false);

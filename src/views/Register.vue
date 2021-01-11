@@ -2,8 +2,8 @@
   <div class="Register">
     <h1>新規登録</h1>
     <h2>登録</h2>
-    <label for="emaill">Email:</label>
-    <input id="emaill" type="email" v-model="state.email" />
+    <label for="email">Email:</label>
+    <input id="email" type="email" v-model="state.email" />
     <br /><br />
     <label for="password">パスワード:</label>
     <input id="password" type="password" v-model="state.password" />

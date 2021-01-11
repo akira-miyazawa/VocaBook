@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import firebase from "../../src/plugins/firebase";
-import { computed, defineComponent, reactive, ref, watch } from "vue";
+import { computed, defineComponent, reactive } from "vue";
 import { UserAuthentication } from "../types/user";
 import { useStore } from "vuex";
 
@@ -33,13 +33,9 @@ export default defineComponent({
       email: "",
       password: "",
     });
-    const userData = reactive<any>({
-      name: "",
-      uid: "",
-    });
 
     firebase.onAuth();
-    const userAuth = reactive<any>({
+    const userAuth = reactive({
       user: computed(() => store.getters.user),
       userStatus: computed(() => store.getters.isSignedIn),
     });

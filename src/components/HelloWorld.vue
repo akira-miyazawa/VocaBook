@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <button @click="logout">ログアウトする</button>
+    <br />
     <h3>新しい辞書を作る</h3>
     <label for="name">VocaBookの名前:</label>
     <input id="name" type="text" v-model="dictionary.title" />
@@ -40,8 +42,8 @@
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase";
-import { defineComponent, reactive, ref } from "vue";
-import { db } from "../plugins/firebase";
+import { defineComponent, reactive } from "vue";
+import Firebase, { db } from "../plugins/firebase";
 
 export type SaveData = {
   name: string;
@@ -156,6 +158,16 @@ export default defineComponent({
         data.words.splice(index, 1);
       }
     }
+    // ログアウト処理
+    async function logout() {
+      try {
+        await Firebase.logout();
+        alert("ログアウトに成功しました！");
+      } catch (err) {
+        console.error(err);
+        alert("ログアウトに失敗しました...");
+      }
+    }
 
     return {
       dictionary,
@@ -165,6 +177,7 @@ export default defineComponent({
       deleteDict,
       addWordExplanation,
       deleteWordExplanation,
+      logout,
     };
   },
 });
