@@ -24,8 +24,12 @@ export default {
   init() {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   },
-  async signUp(email: string, password: string) {
+  async signUp(email: string, password: string, name: string) {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const user = await firebase.auth().currentUser;
+    user?.updateProfile({
+      displayName: name
+    });
     // アカウント作成後は'/home'へルーティング
     router.push("/home");
 
@@ -41,25 +45,25 @@ export default {
     await firebase.auth().signOut();
     // 保存しているjwtを削除して、vuexのmutationの状態の更新処理でログアウト状態にする
     localStorage.removeItem("jwt");
-    store.commit("onAuthStateChanged", "");
+    store.commit("onAuthEmailChanged", "");
     store.commit("onUserStatusChanged", false);
     // ログアウト後はログイン画面へルーティング
     router.push("/login");
   },
   async onAuth() {
-    await firebase.auth().onAuthStateChanged((user: any) => {
+    await firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        if (user.ma) {
-          localStorage.setItem('jwt', user.ma);
+        if (user.email) {
+          localStorage.setItem('jwt', user.email);
         }
-        store.commit('onAuthStateChanged', user);
+        store.commit('onAuthEmailChanged', user.email);
         if (user.uid) {
           store.commit('onUserStatusChanged', true);
         } else {
           store.commit('onUserStatusChanged', false);
         }
       } else {
-        store.commit('onAuthStateChanged', "");
+        store.commit('onAuthEmailChanged', "");
         store.commit('onUserStatusChanged', false);
       }
     });

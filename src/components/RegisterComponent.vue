@@ -41,20 +41,14 @@ export default defineComponent({
 
     async function signUp() {
       try {
-        await Firebase.signUp(state.email, state.password);
-        await db
-          .collection("user")
-          .doc(await firebase.auth().currentUser?.uid)
-          .set({
-            name: state.name,
-          });
+        await Firebase.signUp(state.email, state.password, state.name);
+        state.email = "";
+        state.password = "";
+        alert("新規登録に成功しました！");
       } catch (err) {
         console.error(err);
         alert("新規登録に失敗しました...");
       }
-      state.email = "";
-      state.password = "";
-      alert("新規登録に成功しました！");
     }
     return {
       state,

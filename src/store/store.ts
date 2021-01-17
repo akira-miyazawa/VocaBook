@@ -2,20 +2,20 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    user: {},
+    email: "",
     status: false
   },
   getters: {
-    user(state) {
-      return state.user;
+    email(state) {
+      return state.email
     },
     isSignedIn(state) {
       return state.status;
     }
   },
   mutations: {
-    onAuthStateChanged(state, user) {
-      state.user = user; // firebaseが返したユーザー情報
+    onAuthEmailChanged(state, email) {
+      state.email = email; // firebaseが返したユーザー情報
     },
     onUserStatusChanged(state, status) {
       state.status = status; // ログインしているかどうか true or false 

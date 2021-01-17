@@ -40,7 +40,7 @@ export default defineComponent({
 
     firebase.onAuth();
     const userAuth = reactive({
-      user: computed(() => store.getters.user),
+      user: computed(() => store.getters.email),
       userStatus: computed(() => store.getters.isSignedIn),
     });
 
@@ -51,8 +51,10 @@ export default defineComponent({
         state.email = "";
         state.password = "";
         alert("ログインに成功しました！");
-      } catch {
+      } catch (err) {
+        console.error(err);
         alert("ログインに失敗しました...");
+        return;
       }
     }
 

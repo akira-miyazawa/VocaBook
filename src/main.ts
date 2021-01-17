@@ -1,26 +1,29 @@
 import firebase from 'firebase';
-import { createApp } from "vue";
+import { createApp, render } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css';
 import store from "./store/store";
+import Firebase from '../src/plugins/firebase'
 
 
-firebase.auth().onAuthStateChanged((user: any) => {
+Firebase.init();
+
+firebase.auth().onAuthStateChanged((user) => {
   if (user) {
-    if (user.ma) {
-      localStorage.setItem('jwt', user.ma);
+    if (user.email) {
+      localStorage.setItem('jwt', user.email);
     }
-    store.commit('onAuthStateChanged', user);
+    store.commit('onAuthEmailChanged', user.email);
     if (user.uid) {
       store.commit('onUserStatusChanged', true)
     } else {
       store.commit('onUserStatusChanged', false)
     }
   } else {
-    store.commit('onAuthStateChanged', "")
+    store.commit('onAuthEmailChanged', "")
   }
 });
 

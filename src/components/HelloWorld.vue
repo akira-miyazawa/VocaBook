@@ -42,7 +42,7 @@
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase";
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import Firebase, { db } from "../plugins/firebase";
 
 export type SaveData = {
