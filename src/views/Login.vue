@@ -1,75 +1,46 @@
 <template>
-  <div class="login">
-    <dir v-if="!userAuth.userStatus">
-      <h1>ログイン</h1>
-      <h2>登録</h2>
-      <label for="emaill">Email:</label>
-      <input id="emaill" type="email" v-model="state.email" />
-      <br /><br />
-      <label for="password">パスワード:</label>
-      <input id="password" type="password" v-model="state.password" />
-      <br /><br />
-      <button @click="login(state.email, state.password)">送信</button>
-      {{ `email: ${state.email}` }}
-      {{ `password: ${state.password}` }}
-    </dir>
-    <dir v-else>
-      <h1>ログアウト</h1>
-      <button @click="logout">ログアウトする</button>
-    </dir>
+  <div id="login">
+    <el-row type="flex" justify="center">
+      <el-col class="title">
+        <img src="../assets/vocabook.png" width="100" height="100" />
+      </el-col>
+      <el-col class="title">
+        <h1 class="icon">VocaBook</h1>
+      </el-col>
+    </el-row>
+    <el-radio-group v-model="login">
+      <el-radio :label="true">ログイン</el-radio>
+      <el-radio :label="false">新規登録</el-radio>
+    </el-radio-group>
+    <LoginComponent v-if="login" />
+    <RegisterComponent v-else />
   </div>
 </template>
 
 <script lang="ts">
 import firebase from "../../src/plugins/firebase";
-import { computed, defineComponent, reactive } from "vue";
-import { UserAuthentication } from "../types/user";
+import { computed, defineComponent, reactive, ref } from "vue";
+import LoginComponent from "@/components/LoginComponent.vue";
+import RegisterComponent from "@/components/RegisterComponent.vue";
 import { useStore } from "vuex";
 
 export default defineComponent({
+  name: "Login",
+  components: {
+    LoginComponent,
+    RegisterComponent,
+  },
   setup() {
-    const store = useStore();
-    const state = reactive<UserAuthentication>({
-      email: "",
-      password: "",
-    });
-
-    firebase.onAuth();
-    const userAuth = reactive({
-      user: computed(() => store.getters.user),
-      userStatus: computed(() => store.getters.isSignedIn),
-    });
-
-    // ログイン処理
-    async function login(email: string, password: string) {
-      try {
-        await firebase.login(email, password);
-        state.email = "";
-        state.password = "";
-        alert("ログインに成功しました！");
-      } catch {
-        alert("ログインに失敗しました...");
-      }
-    }
-
-    // ログアウト処理
-    async function logout() {
-      try {
-        await firebase.logout();
-        alert("ログアウトに成功しました！");
-      } catch (err) {
-        console.error(err);
-        alert("ログアウトに失敗しました...");
-      }
-    }
-
+    const login = ref(true);
     return {
-      store,
-      state,
-      userAuth,
       login,
-      logout,
     };
   },
 });
 </script>
+
+<style lang="postcss" scoped>
+.icon {
+  font-family: Hiragino Maru Gothic ProN W4;
+}
+</style>

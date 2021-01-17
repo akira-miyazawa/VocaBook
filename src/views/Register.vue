@@ -16,12 +16,13 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
-import { UserAuthentication } from "../types/user";
+import { UserRegister } from "../types/user";
 import firebase from "../../src/plugins/firebase";
 
 export default defineComponent({
   setup() {
-    const state = reactive<UserAuthentication>({
+    const state = reactive<UserRegister>({
+      name: "",
       email: "",
       password: "",
     });

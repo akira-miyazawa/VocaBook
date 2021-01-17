@@ -3,33 +3,29 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
+import ElementPlus from 'element-plus'
+import 'element-plus/lib/theme-chalk/index.css';
 import store from "./store/store";
 
-router.beforeEach((to, from, next) => {
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-      if (to.name == "Login") {
-        next({
-          name: "Home"
-        })
-      }
-      next();
+
+firebase.auth().onAuthStateChanged((user: any) => {
+  if (user) {
+    if (user.ma) {
+      localStorage.setItem('jwt', user.ma);
     }
-    else {
-      if (to.matched.some(record => record.meta.requiresAuth)) {
-        next({
-          name: "Login",
-          query: {
-            redirect: to.fullPath
-          },
-        })
-      }
-      next();
+    store.commit('onAuthStateChanged', user);
+    if (user.uid) {
+      store.commit('onUserStatusChanged', true)
+    } else {
+      store.commit('onUserStatusChanged', false)
     }
-  })
+  } else {
+    store.commit('onAuthStateChanged', "")
+  }
 });
 
 createApp(App)
   .use(store)
   .use(router)
+  .use(ElementPlus)
   .mount("#app");

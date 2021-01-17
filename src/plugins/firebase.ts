@@ -3,6 +3,7 @@ import VueFire from "vuefire";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import store from "../store/store";
+import router from '@/router';
 
 createApp(VueFire);
 
@@ -24,21 +25,43 @@ export default {
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
   },
   async signUp(email: string, password: string) {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     await firebase.auth().createUserWithEmailAndPassword(email, password);
+    // アカウント作成後は'/home'へルーティング
+    router.push("/home");
+
   },
   async login(email: string, password: string) {
-    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    await firebase.auth().signInWithEmailAndPassword(email, password);
+    const res = await firebase.auth().signInWithEmailAndPassword(email, password);
+    const idToken: any = await res.user?.getIdToken();
+    localStorage.setItem("jwt", idToken);
+    // ログイン後は'/home'へルーティング
+    router.push("/home");
   },
   async logout() {
     await firebase.auth().signOut();
+    // 保存しているjwtを削除して、vuexのmutationの状態の更新処理でログアウト状態にする
+    localStorage.removeItem("jwt");
+    store.commit("onAuthStateChanged", "");
+    store.commit("onUserStatusChanged", false);
+    // ログアウト後はログイン画面へルーティング
+    router.push("/login");
   },
   async onAuth() {
     await firebase.auth().onAuthStateChanged((user: any) => {
-      user = user ? user : {};
-      store.commit('onAuthStateChanged', user);
-      store.commit('onUserStatusChanged', user.uid ? true : false);
+      if (user) {
+        if (user.ma) {
+          localStorage.setItem('jwt', user.ma);
+        }
+        store.commit('onAuthStateChanged', user);
+        if (user.uid) {
+          store.commit('onUserStatusChanged', true);
+        } else {
+          store.commit('onUserStatusChanged', false);
+        }
+      } else {
+        store.commit('onAuthStateChanged', "");
+        store.commit('onUserStatusChanged', false);
+      }
     });
   }
 };
