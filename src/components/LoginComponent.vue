@@ -38,12 +38,6 @@ export default defineComponent({
       password: "",
     });
 
-    firebase.onAuth();
-    const userAuth = reactive({
-      user: computed(() => store.getters.email),
-      userStatus: computed(() => store.getters.isSignedIn),
-    });
-
     // ログイン処理
     async function login(email: string, password: string) {
       try {
@@ -72,7 +66,6 @@ export default defineComponent({
     return {
       store,
       state,
-      userAuth,
       login,
       logout,
     };

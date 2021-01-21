@@ -1,20 +1,24 @@
-import store from '@/store/store';
-import { createRouter, createWebHistory, RouteLocationNormalized, RouteRecordRaw, RouterScrollBehavior } from "vue-router";
-import Login from "../views/Login.vue"
-import Firebase from "../plugins/firebase"
+import { createRouter, createWebHistory } from "vue-router";
+import Login from "../views/Login.vue";
 import firebase from 'firebase/app';
+import store from '@/store/store';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: "/",
+      name: "Root",
+      redirect: "/login"
+    },
+    {
       path: "/login",
-      name: "Login",
+      name: "login",
       component: Login
     },
     {
       path: "/home",
-      name: "Home",
+      name: "home",
       meta: { requiresAuth: true },
       // route level code-splitting
       // this generates a separate chunk (about.[hash].js) for this route
@@ -24,7 +28,7 @@ const router = createRouter({
     },
     {
       path: "/:catchAll(.*)",
-      redirect: "/login"
+      redirect: "/"
     }
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -42,16 +46,14 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  await Firebase.onAuth();
-  const currentUserStatus = await store.getters.isSignedIn;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const currentUserStatus = await store.getters.isSignedIn;
   if (!requiresAuth) {
     next();
-  } else if (requiresAuth && !currentUserStatus) {
-    next();
+  } else if (!requiresAuth && !currentUserStatus) {
+    next('/login');
   } else {
     next();
   }
 })
-
 export default router;

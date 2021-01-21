@@ -1,9 +1,10 @@
 import { createApp } from "vue";
 import VueFire from "vuefire";
-import firebase from "firebase/app";
-import "firebase/firestore";
 import store from "../store/store";
 import router from '@/router';
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore'
 
 createApp(VueFire);
 
@@ -18,11 +19,14 @@ const config = {
   measurementId: "G-YVC4CXXT8R"
 };
 
-export const db = firebase.initializeApp(config).firestore();
+// export const db = firebase.initializeApp(config).firestore();
 
 export default {
   init() {
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp(config);
+    }
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
   },
   async signUp(email: string, password: string, name: string) {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -30,14 +34,15 @@ export default {
     user?.updateProfile({
       displayName: name
     });
+    localStorage.setItem("jwt", name);
     // アカウント作成後は'/home'へルーティング
     router.push("/home");
-
   },
   async login(email: string, password: string) {
     const res = await firebase.auth().signInWithEmailAndPassword(email, password);
-    const idToken: any = await res.user?.getIdToken();
-    localStorage.setItem("jwt", idToken);
+    const userName = res.user?.displayName;
+    if (userName == undefined) return;
+    localStorage.setItem("jwt", userName);
     // ログイン後は'/home'へルーティング
     router.push("/home");
   },
@@ -45,27 +50,16 @@ export default {
     await firebase.auth().signOut();
     // 保存しているjwtを削除して、vuexのmutationの状態の更新処理でログアウト状態にする
     localStorage.removeItem("jwt");
-    store.commit("onAuthEmailChanged", "");
+    store.commit("onAuthStateChanged", {});
     store.commit("onUserStatusChanged", false);
     // ログアウト後はログイン画面へルーティング
     router.push("/login");
   },
-  async onAuth() {
-    await firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        if (user.email) {
-          localStorage.setItem('jwt', user.email);
-        }
-        store.commit('onAuthEmailChanged', user.email);
-        if (user.uid) {
-          store.commit('onUserStatusChanged', true);
-        } else {
-          store.commit('onUserStatusChanged', false);
-        }
-      } else {
-        store.commit('onAuthEmailChanged', "");
-        store.commit('onUserStatusChanged', false);
-      }
+  onAuth() {
+    firebase.auth().onAuthStateChanged(user => {
+      user = user ? user : {} as firebase.User | null;
+      store.commit('onAuthStateChanged', user);
+      store.commit('onUserStatusChanged', user?.uid ? true : false);
     });
   }
 };

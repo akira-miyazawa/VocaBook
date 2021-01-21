@@ -28,8 +28,9 @@
 <script lang="ts">
 import { defineComponent, reactive } from "vue";
 import { UserRegister } from "../types/user";
-import firebase from "firebase";
-import Firebase, { db } from "../../src/plugins/firebase";
+import firebase from "firebase/app";
+import "firebase/firestore";
+import Firebase from "../../src/plugins/firebase";
 
 export default defineComponent({
   setup() {

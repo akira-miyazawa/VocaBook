@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import firebase from "../../src/plugins/firebase";
+import Firebase from "../../src/plugins/firebase";
 import { computed, defineComponent, reactive, ref } from "vue";
 import LoginComponent from "@/components/LoginComponent.vue";
 import RegisterComponent from "@/components/RegisterComponent.vue";
@@ -31,6 +31,7 @@ export default defineComponent({
     RegisterComponent,
   },
   setup() {
+    Firebase.onAuth();
     const login = ref(true);
     return {
       login,

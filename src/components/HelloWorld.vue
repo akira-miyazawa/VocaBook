@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    {{ displayName }}
     <button @click="logout">ログアウトする</button>
     <br />
     <h3>新しい辞書を作る</h3>
@@ -18,11 +19,7 @@
       <input id="word" type="text" v-model="dictContents.word" />
       <br /><br />
       <label for="explanation">解説:</label>
-      <textarea
-        id="explanation"
-        type="text"
-        v-model="dictContents.explanation"
-      />
+      <textarea id="explanation" v-model="dictContents.explanation" />
       <br /><br />
       <button @click="addWordExplanation(data, data.documentId, dictContents)">
         追加
@@ -40,10 +37,13 @@
 </template>
 
 <script lang="ts">
+import store from "@/store/store";
 import { DictContents, Dictionary } from "@/types/dectionary";
-import firebase from "firebase";
-import { defineComponent, reactive, ref } from "vue";
-import Firebase, { db } from "../plugins/firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import { computed, defineComponent, reactive, ref } from "vue";
+import Firebase from "../plugins/firebase";
 
 export type SaveData = {
   name: string;
@@ -64,8 +64,12 @@ export default defineComponent({
       explanation: "",
     };
     const postsData = reactive<any>({ posts: [] });
+    const displayName = ref(localStorage.getItem("jwt"));
+
+    const db = firebase.firestore();
 
     firebase.auth().onAuthStateChanged((user) => {
+      Firebase.init();
       if (user) {
         db.collection("user")
           .doc(firebase.auth().currentUser?.uid)
@@ -173,6 +177,7 @@ export default defineComponent({
       dictionary,
       dictContents,
       postsData,
+      displayName,
       createDict,
       deleteDict,
       addWordExplanation,
