@@ -1,23 +1,29 @@
 <template>
-  <div class="home">
+  <div class="operation">
     <HeaderComponent />
-    <HelloWorld :dictionaries="postsData.posts" />
+    <OperationComponent
+      :postsData="postsData"
+      @deletDict="deletDictionary"
+      @deleteWord="deleteWordExplanation"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive } from "vue";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import OperationComponent from "@/components/OperationComponent.vue";
 import HeaderComponent from "@/components/HeaderComponent.vue";
 import Firebase from "../plugins/firebase";
 import store from "@/store/store";
-import { Dictionary } from "@/types/dectionary";
-import firebase from "firebase";
+import { DictContents, Dictionary } from "@/types/dectionary";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
 
 export default defineComponent({
   name: "Home",
   components: {
-    HelloWorld,
+    OperationComponent,
     HeaderComponent,
   },
 
@@ -44,8 +50,48 @@ export default defineComponent({
       }
     });
 
+    async function deletDictionary(documentId: string) {
+      await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
+        .doc(documentId)
+        .delete();
+      const index = postsData.posts.findIndex(
+        (dict: any) => dict.documentId === documentId
+      );
+      if (index !== -1) {
+        postsData.posts.splice(index, 1);
+      }
+    }
+
+    async function deleteWordExplanation(
+      dictionary: Dictionary,
+      dictContents: DictContents
+    ) {
+      await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
+        .doc(dictionary.documentId)
+        .update({
+          words: firebase.firestore.FieldValue.arrayRemove({
+            word: dictContents.word,
+            explanation: dictContents.explanation,
+          }),
+        });
+      const index = dictionary.words.findIndex(
+        (word: DictContents) => word === dictContents
+      );
+      if (index !== -1) {
+        dictionary.words.splice(index, 1);
+      }
+    }
+
     return {
       postsData,
+      deletDictionary,
+      deleteWordExplanation,
     };
   },
 });
