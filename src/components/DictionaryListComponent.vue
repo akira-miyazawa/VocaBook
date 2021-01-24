@@ -1,53 +1,42 @@
 <template>
-  <div id="app">
+  <div id="dictionary-list">
     <el-row>
+      <template v-for="dict in dictionaries" :key="dict">
+        <el-col :span="8">
+          <el-card
+            class="card"
+            @click="insertDisplayValue(dict.title, dict.words)"
+          >
+            {{ `「${dict.title}」` }}
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteDict(dict.documentId)"
+              circle
+            />
+            <br /><br />
+            <label for="word">単語:</label>
+            <input id="word" type="text" v-model="dictContents.word" />
+            <br /><br />
+            <label for="explanation">解説:</label>
+            <textarea id="explanation" v-model="dictContents.explanation" />
+            <br /><br />
+            <button @click="addWordExplanation(dict, dictContents)">
+              追加
+            </button>
+          </el-card>
+        </el-col>
+      </template>
       <el-col :span="8">
-        {{ displayValue.title }}
-        <el-table :data="displayValue.words">
-          <el-table-column prop="word" />
-          <el-table-column prop="explanation" />
-        </el-table>
-      </el-col>
-      <el-col :span="16">
-        <el-row>
-          <template v-for="dict in dictionaries" :key="dict">
-            <el-col :span="8">
-              <el-card
-                class="card"
-                @click="insertDisplayValue(dict.title, dict.words)"
-              >
-                {{ `「${dict.title}」` }}
-                <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  @click="deleteDict(dict.documentId)"
-                  circle
-                />
-                <br /><br />
-                <label for="word">単語:</label>
-                <input id="word" type="text" v-model="dictContents.word" />
-                <br /><br />
-                <label for="explanation">解説:</label>
-                <textarea id="explanation" v-model="dictContents.explanation" />
-                <br /><br />
-                <button @click="addWordExplanation(dict, dictContents)">
-                  追加
-                </button>
-              </el-card>
-            </el-col>
-          </template>
-          <el-col :span="8">
-            <el-card class="card">
-              <input id="name" type="text" v-model="dictionary.title" />
-              <el-button
-                type="primary"
-                icon="el-icon-plus"
-                @click="createDict"
-                circle
-              />
-            </el-card>
-          </el-col>
-        </el-row>
+        <el-card class="card">
+          <input id="name" type="text" v-model="dictionary.title" />
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            @click="createDict"
+            circle
+          />
+        </el-card>
       </el-col>
     </el-row>
     <h3>新しい辞書を作る</h3>
@@ -90,20 +79,17 @@ import Firebase from "../plugins/firebase";
 
 export default defineComponent({
   props: {
-    db: {
-      type: Object,
-    },
-    postsData: {
-      type: Object,
+    posts: {
+      type: Array as PropType<Dictionary[]>,
     },
   },
   setup(props, context) {
-    const dictionaries = ref<Dictionary[]>(props.postsData?.posts);
+    const dictionaries = computed(() => props.posts);
     const dictionary = reactive<Dictionary>({
       title: "",
       words: [],
-      timeStamp: {},
-      documentId: {},
+      timeStamp: "",
+      documentId: "",
       uid: "",
     });
     const dictContents: DictContents = {
@@ -129,7 +115,7 @@ export default defineComponent({
         documentId: dict.id,
       });
       dictionary.title = "";
-      dictionary.timeStamp = {};
+      dictionary.timeStamp = "";
     }
 
     async function deleteDict(documentId: string) {
@@ -167,8 +153,7 @@ export default defineComponent({
     }
 
     function insertDisplayValue(title: string, words: DictContents[]) {
-      displayValue.title = title;
-      displayValue.words = words;
+      context.emit("insertValue", title, words);
     }
 
     return {

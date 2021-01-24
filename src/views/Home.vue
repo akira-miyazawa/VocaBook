@@ -1,21 +1,34 @@
 <template>
   <div class="operation">
     <HeaderComponent />
-    <OperationComponent
-      :postsData="postsData"
-      @deletDict="deletDictionary"
-      @deleteWord="deleteWordExplanation"
-    />
+    <el-row>
+      <el-col :span="8">
+        <WordListComponent :displayValue="displayValue" />
+      </el-col>
+      <el-col :span="16">
+        <DictionaryListComponent
+          :posts="postsData.posts"
+          @deletDict="deletDictionary"
+          @deleteWord="deleteWordExplanation"
+          @insertValue="insertDisplayValue"
+        />
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, reactive } from "vue";
-import OperationComponent from "@/components/OperationComponent.vue";
 import HeaderComponent from "@/components/HeaderComponent.vue";
+import DictionaryListComponent from "@/components/DictionaryListComponent.vue";
+import WordListComponent from "@/components/WordListComponent.vue";
 import Firebase from "../plugins/firebase";
 import store from "@/store/store";
-import { DictContents, Dictionary } from "@/types/dectionary";
+import {
+  DictContents,
+  Dictionary,
+  DisplayDictContents,
+} from "@/types/dectionary";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
@@ -23,13 +36,17 @@ import "firebase/firestore";
 export default defineComponent({
   name: "Home",
   components: {
-    OperationComponent,
     HeaderComponent,
+    DictionaryListComponent,
+    WordListComponent,
   },
 
   setup() {
     const postsData = reactive<any>({ posts: [] });
-    const displayValue = reactive<any>({ title: "", words: [] });
+    const displayValue = reactive<DisplayDictContents>({
+      title: "",
+      words: [],
+    });
 
     const db = firebase.firestore();
 
@@ -88,10 +105,17 @@ export default defineComponent({
       }
     }
 
+    function insertDisplayValue(title: string, words: DictContents[]) {
+      displayValue.title = title;
+      displayValue.words = words;
+    }
+
     return {
       postsData,
+      displayValue,
       deletDictionary,
       deleteWordExplanation,
+      insertDisplayValue,
     };
   },
 });
