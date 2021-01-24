@@ -1,8 +1,59 @@
 <template>
   <div id="app">
-    {{ displayName }}
-    <button @click="logout">ログアウトする</button>
-    <br />
+    <el-row>
+      <el-col :span="8">
+        {{ displayValue.title }}
+        <el-table :data="displayValue.words">
+          <el-table-column prop="word" />
+          <el-table-column prop="explanation" />
+        </el-table>
+      </el-col>
+      <el-col :span="16">
+        <el-row>
+          <template v-for="data in postsData.posts" :key="data">
+            <el-col :span="8">
+              <el-card
+                class="card"
+                @click="insertDisplayValue(data.title, data.words)"
+              >
+                {{ `「${data.title}」` }}
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  @click="deleteDict(data.documentId)"
+                  circle
+                />
+                <br /><br />
+                <label for="word">単語:</label>
+                <input id="word" type="text" v-model="dictContents.word" />
+                <br /><br />
+                <label for="explanation">解説:</label>
+                <textarea id="explanation" v-model="dictContents.explanation" />
+                <br /><br />
+                <button
+                  @click="
+                    addWordExplanation(data, data.documentId, dictContents)
+                  "
+                >
+                  追加
+                </button>
+              </el-card>
+            </el-col>
+          </template>
+          <el-col :span="8">
+            <el-card class="card">
+              <input id="name" type="text" v-model="dictionary.title" />
+              <el-button
+                type="primary"
+                icon="el-icon-plus"
+                @click="createDict"
+                circle
+              />
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
     <h3>新しい辞書を作る</h3>
     <label for="name">VocaBookの名前:</label>
     <input id="name" type="text" v-model="dictionary.title" />
@@ -64,7 +115,7 @@ export default defineComponent({
       explanation: "",
     };
     const postsData = reactive<any>({ posts: [] });
-    const displayName = ref(localStorage.getItem("jwt"));
+    const displayValue = reactive<any>({ title: "", words: [] });
 
     const db = firebase.firestore();
 
@@ -162,30 +213,29 @@ export default defineComponent({
         data.words.splice(index, 1);
       }
     }
-    // ログアウト処理
-    async function logout() {
-      try {
-        await Firebase.logout();
-        alert("ログアウトに成功しました！");
-      } catch (err) {
-        console.error(err);
-        alert("ログアウトに失敗しました...");
-      }
+
+    function insertDisplayValue(title: string, words: DictContents[]) {
+      displayValue.title = title;
+      displayValue.words = words;
     }
 
     return {
       dictionary,
       dictContents,
+      displayValue,
       postsData,
-      displayName,
       createDict,
       deleteDict,
       addWordExplanation,
       deleteWordExplanation,
-      logout,
+      insertDisplayValue,
     };
   },
 });
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.card {
+  margin: 10px;
+}
+</style>

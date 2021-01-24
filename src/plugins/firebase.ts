@@ -56,6 +56,9 @@ export default {
     router.push("/login");
   },
   onAuth() {
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp(config);
+    }
     firebase.auth().onAuthStateChanged(user => {
       user = user ? user : {} as firebase.User | null;
       store.commit('onAuthStateChanged', user);
