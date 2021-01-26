@@ -3,12 +3,6 @@
     <HeaderComponent />
     <el-row>
       <el-col :span="8">
-        <WordListComponent
-          :dict="dictionary"
-          @deleteWord="deleteWordExplanation"
-        />
-      </el-col>
-      <el-col :span="16">
         <DictionaryListComponent
           :posts="postsData.posts"
           :dict="dictionary"
@@ -16,6 +10,12 @@
           @deletDict="deletDictionary"
           @addWord="addWordExplanation"
           @insertValue="insertDisplayValue"
+        />
+      </el-col>
+      <el-col :span="16">
+        <WordListComponent
+          :dict="dictionary"
+          @deleteWord="deleteWordExplanation"
         />
       </el-col>
     </el-row>
@@ -60,11 +60,11 @@ export default defineComponent({
         db.collection("user")
           .doc(firebase.auth().currentUser?.uid)
           .collection("dictionary")
-          .orderBy("timeStamp", "desc")
+          .orderBy("timeStamp", "asc")
           .onSnapshot(function (snapshot) {
             snapshot.docChanges().forEach((change) => {
               if (change.type === "added") {
-                postsData.posts.push(change.doc.data());
+                postsData.posts.unshift(change.doc.data());
               }
             });
           });

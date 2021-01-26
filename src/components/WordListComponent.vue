@@ -26,7 +26,7 @@ export default defineComponent({
       type: Object as PropType<Dictionary>,
     },
   },
-
+  emits: ["deleteWord"],
   setup(props, context) {
     const dictionary = computed(() => props.dict);
 

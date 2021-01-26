@@ -4,11 +4,11 @@
       <el-col :span="8" class="login-form">
         <el-form label-position="top" label-width="140px">
           <el-form-item class="icon" label="メールアドレス">
-            <el-input type="text" id="email" v-model="state.email" />
+            <el-input type="text" class="email" v-model="state.email" />
           </el-form-item>
           <el-form-item class="icon" label="パスワード">
             <el-input
-              id="password"
+              class="password"
               :minlength="6"
               :maxlength="20"
               v-model="state.password"

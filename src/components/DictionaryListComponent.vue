@@ -1,8 +1,21 @@
 <template>
   <div id="dictionary-list">
     <el-row>
+      <el-col :span="12">
+        <el-card class="card">
+          <h2>VocaBook</h2>
+          <h3>新規作成</h3>
+          <el-input class="name" type="text" v-model="dictTitle" />
+          <el-button
+            type="primary"
+            icon="el-icon-notebook-2"
+            @click="createDict(dictTitle)"
+            circle
+          />
+        </el-card>
+      </el-col>
       <template v-for="dict in dictionaries" :key="dict">
-        <el-col :span="8">
+        <el-col :span="12">
           <el-card class="card" @click="insertDisplayValue(dict)">
             {{ `「${dict.title}」` }}
             <el-button
@@ -11,29 +24,33 @@
               @click="deleteDict(dict.documentId)"
               circle
             />
-            <br /><br />
-            <label for="word">単語:</label>
-            <input id="word" type="text" v-model="dictContents.word" />
-            <br /><br />
-            <label for="explanation">解説:</label>
-            <textarea id="explanation" v-model="dictContents.explanation" />
-            <br /><br />
-            <button @click="addWord(dict, dictContents)">追加</button>
+            <el-button
+              icon="el-icon-edit"
+              @click="isShowModalWindow = true"
+              circle
+            />
           </el-card>
         </el-col>
       </template>
-      <el-col :span="8">
-        <el-card class="card">
-          <input id="name" type="text" v-model="dictTitle" />
-          <el-button
-            type="primary"
-            icon="el-icon-plus"
-            @click="createDict(dictTitle)"
-            circle
-          />
-        </el-card>
-      </el-col>
     </el-row>
+    <el-dialog class="modal-window" v-model="isShowModalWindow">
+      <el-form>
+        <el-form-item label="ワード">
+          <el-input v-model="dictContents.word"></el-input>
+        </el-form-item>
+        <el-form-item label="解説">
+          <el-input v-model="dictContents.explanation"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="isShowModalWindow = false">キャンセル</el-button>
+          <el-button @click="addWord(dictionary, dictContents)"
+            >追加する</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -45,6 +62,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import Firebase from "../plugins/firebase";
+import ModalWindowCompnent from "@/components/ModalWindowCompnent.vue";
 
 export default defineComponent({
   props: {
@@ -55,29 +73,31 @@ export default defineComponent({
       type: Object as PropType<Dictionary>,
     },
   },
-
+  emits: ["createDict", "deletDict", "addWord", "insertValue"],
   setup(props, context) {
     const dictionaries = computed(() => props.posts);
     const dictionary = computed(() => props.dict);
     const dictTitle = ref<string>("");
-    const dictContents: DictContents = {
+    const dictContents = reactive<DictContents>({
       word: "",
       explanation: "",
-    };
+    });
+    const isShowModalWindow = ref<boolean>(false);
 
     const db = firebase.firestore();
 
-    async function createDict(title: string) {
+    function createDict(title: string) {
       context.emit("createDict", title);
       dictTitle.value = "";
     }
 
-    async function deleteDict(documentId: string) {
+    function deleteDict(documentId: string) {
       context.emit("deletDict", documentId);
     }
 
-    async function addWord(dict: Dictionary, dictContents: DictContents) {
+    function addWord(dict: Dictionary, dictContents: DictContents) {
       context.emit("addWord", dict, dictContents);
+      isShowModalWindow.value = false;
     }
 
     function insertDisplayValue(dict: Dictionary) {
@@ -89,6 +109,7 @@ export default defineComponent({
       dictionary,
       dictContents,
       dictTitle,
+      isShowModalWindow,
       createDict,
       deleteDict,
       addWord,
