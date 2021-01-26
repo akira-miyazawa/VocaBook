@@ -1,27 +1,46 @@
 <template>
   <div id="word-list">
-    {{ dictContents.title }}
-    <el-table :data="dictContents.words">
+    {{ dictionary.title }}
+    <el-table :data="dictionary.words">
       <el-table-column prop="word" />
       <el-table-column prop="explanation" />
-      <el-table-column><i class="el-icon-delete-solid" /></el-table-column>
+      <el-table-column>
+        <template #default="scope">
+          <i
+            class="el-icon-delete-solid"
+            @click="deleteWord(dictionary, scope.row, scope.$index)"
+          />
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
 
 <script lang="ts">
-import { DisplayDictContents } from "@/types/dectionary";
+import { DictContents, Dictionary } from "@/types/dectionary";
 import { computed, defineComponent, PropType, ref } from "vue";
+
 export default defineComponent({
   props: {
-    displayValue: {
-      type: Object as PropType<DisplayDictContents[]>,
+    dict: {
+      type: Object as PropType<Dictionary>,
     },
   },
-  setup(props) {
-    const dictContents = computed(() => props.displayValue);
+
+  setup(props, context) {
+    const dictionary = computed(() => props.dict);
+
+    function deleteWord(
+      dict: Dictionary,
+      dictContents: DictContents,
+      index: number
+    ) {
+      context.emit("deleteWord", dict, dictContents, index);
+    }
+
     return {
-      dictContents,
+      dictionary,
+      deleteWord,
     };
   },
 });

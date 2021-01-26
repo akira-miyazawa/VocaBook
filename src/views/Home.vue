@@ -3,13 +3,18 @@
     <HeaderComponent />
     <el-row>
       <el-col :span="8">
-        <WordListComponent :displayValue="displayValue" />
+        <WordListComponent
+          :dict="dictionary"
+          @deleteWord="deleteWordExplanation"
+        />
       </el-col>
       <el-col :span="16">
         <DictionaryListComponent
           :posts="postsData.posts"
+          :dict="dictionary"
+          @createDict="createDictionary"
           @deletDict="deletDictionary"
-          @deleteWord="deleteWordExplanation"
+          @addWord="addWordExplanation"
           @insertValue="insertDisplayValue"
         />
       </el-col>
@@ -24,11 +29,7 @@ import DictionaryListComponent from "@/components/DictionaryListComponent.vue";
 import WordListComponent from "@/components/WordListComponent.vue";
 import Firebase from "../plugins/firebase";
 import store from "@/store/store";
-import {
-  DictContents,
-  Dictionary,
-  DisplayDictContents,
-} from "@/types/dectionary";
+import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
@@ -43,9 +44,12 @@ export default defineComponent({
 
   setup() {
     const postsData = reactive<any>({ posts: [] });
-    const displayValue = reactive<DisplayDictContents>({
+    const dictionary = reactive<Dictionary>({
       title: "",
       words: [],
+      timeStamp: "",
+      documentId: "",
+      uid: "",
     });
 
     const db = firebase.firestore();
@@ -67,6 +71,23 @@ export default defineComponent({
       }
     });
 
+    async function createDictionary(dictTitle: string) {
+      const auth = await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid);
+      auth.set({
+        uid: await firebase.auth().currentUser?.uid,
+      });
+      const dict = await auth.collection("dictionary").doc();
+      dict.set({
+        title: dictTitle,
+        words: [],
+        timeStamp: firebase.firestore.Timestamp.now().toDate(),
+        documentId: dict.id,
+      });
+      dictTitle = "";
+    }
+
     async function deletDictionary(documentId: string) {
       await db
         .collection("user")
@@ -80,40 +101,74 @@ export default defineComponent({
       if (index !== -1) {
         postsData.posts.splice(index, 1);
       }
+      dictionary.title = "";
+      dictionary.words = [];
+      dictionary.documentId = "";
+      dictionary.timeStamp = "";
+      dictionary.uid = "";
     }
 
-    async function deleteWordExplanation(
-      dictionary: Dictionary,
+    async function addWordExplanation(
+      dict: Dictionary,
       dictContents: DictContents
     ) {
       await db
         .collection("user")
         .doc(await firebase.auth().currentUser?.uid)
         .collection("dictionary")
-        .doc(dictionary.documentId)
+        .doc(dict.documentId)
+        .update({
+          words: firebase.firestore.FieldValue.arrayUnion({
+            word: dictContents.word,
+            explanation: dictContents.explanation,
+          }),
+        });
+      dict.words.push({
+        word: dictContents.word,
+        explanation: dictContents.explanation,
+      });
+      dictContents.word = "";
+      dictContents.explanation = "";
+    }
+
+    async function deleteWordExplanation(
+      dict: Dictionary,
+      dictContents: DictContents,
+      index: number
+    ) {
+      await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
+        .doc(dict.documentId)
         .update({
           words: firebase.firestore.FieldValue.arrayRemove({
             word: dictContents.word,
             explanation: dictContents.explanation,
           }),
         });
-      const index = dictionary.words.findIndex(
-        (word: DictContents) => word === dictContents
-      );
+      // const index = dictionary.words.findIndex(
+      //   (word: DictContents) => word === dictContents
+      // );
       if (index !== -1) {
-        dictionary.words.splice(index, 1);
+        dict.words.splice(index, 1);
       }
     }
 
-    function insertDisplayValue(title: string, words: DictContents[]) {
-      displayValue.title = title;
-      displayValue.words = words;
+    function insertDisplayValue(dict: Dictionary) {
+      dictionary.title = dict.title;
+      dictionary.words = dict.words;
+      dictionary.documentId = dict.documentId;
+      dictionary.timeStamp = dict.timeStamp;
+      dictionary.uid = dict.uid;
     }
 
     return {
       postsData,
-      displayValue,
+      dictionary,
+      createDictionary,
       deletDictionary,
+      addWordExplanation,
       deleteWordExplanation,
       insertDisplayValue,
     };

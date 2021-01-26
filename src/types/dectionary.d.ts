@@ -7,12 +7,6 @@ export interface Dictionary {
   uid: string;
 }
 
-/** 表示用の型 */
-export interface DisplayDictContents {
-  title: string;
-  words: DictContents[];
-}
-
 export interface DictContents {
   word: string;
   explanation: string;
