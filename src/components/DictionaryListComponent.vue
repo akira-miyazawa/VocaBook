@@ -19,14 +19,15 @@
           <el-card class="card" @click="insertDisplayValue(dict)">
             {{ `「${dict.title}」` }}
             <el-button
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteDict(dict.documentId)"
+              type="success"
+              icon="el-icon-plus"
+              @click="isShowModalWindow = true"
               circle
             />
             <el-button
-              icon="el-icon-edit"
-              @click="isShowModalWindow = true"
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteDict(dict.documentId)"
               circle
             />
           </el-card>
