@@ -14,10 +14,16 @@
           />
         </el-card>
       </el-col>
-      <template v-for="dict in dictionaries" :key="dict">
+      <template v-for="(dict, index) in dictionaries" :key="index">
         <el-col :span="12">
           <el-card class="card" @click="insertDisplayValue(dict)">
             {{ `「${dict.title}」` }}
+            <el-button
+              type="info"
+              icon="el-icon-edit"
+              @click="editStart(dict, index)"
+              circle
+            />
             <el-button
               type="success"
               icon="el-icon-plus"
@@ -34,6 +40,22 @@
         </el-col>
       </template>
     </el-row>
+    <el-dialog class="modal-window" v-model="isModal">
+      <el-form>
+        <el-form-item label="VocaBook">
+          <el-input v-model="updateTitle"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="isModal = false">キャンセル</el-button>
+          <el-button
+            @click="updateDict(updateTitle, updateDocumentId, updateDictIndex)"
+            >追加する</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-form>
         <el-form-item label="ワード">
@@ -74,7 +96,14 @@ export default defineComponent({
       type: Object as PropType<Dictionary>,
     },
   },
-  emits: ["createDict", "deletDict", "addWord", "insertValue"],
+  emits: [
+    "createDict",
+    "deletDict",
+    "updateDict",
+    "addWord",
+    "insertValue",
+    "editStart",
+  ],
   setup(props, context) {
     const dictionaries = computed(() => props.posts);
     const dictionary = computed(() => props.dict);
@@ -83,7 +112,11 @@ export default defineComponent({
       word: "",
       explanation: "",
     });
+    const isModal = ref<boolean>(false);
     const isShowModalWindow = ref<boolean>(false);
+    const updateTitle = ref<string>("");
+    const updateDocumentId = ref<string>("");
+    const updateDictIndex = ref<number>();
 
     const db = firebase.firestore();
 
@@ -96,9 +129,21 @@ export default defineComponent({
       context.emit("deletDict", documentId);
     }
 
+    function updateDict(title: string, documentId: string, index: number) {
+      context.emit("updateDict", title, documentId, index);
+      isModal.value = false;
+    }
+
     function addWord(dict: Dictionary, dictContents: DictContents) {
       context.emit("addWord", dict, dictContents);
       isShowModalWindow.value = false;
+    }
+
+    function editStart(dict: Dictionary, index: number) {
+      updateTitle.value = dict.title;
+      updateDocumentId.value = dict.documentId;
+      updateDictIndex.value = index;
+      isModal.value = true;
     }
 
     function insertDisplayValue(dict: Dictionary) {
@@ -108,12 +153,18 @@ export default defineComponent({
     return {
       dictionaries,
       dictionary,
+      updateTitle,
+      updateDocumentId,
+      updateDictIndex,
       dictContents,
       dictTitle,
+      isModal,
       isShowModalWindow,
       createDict,
       deleteDict,
+      updateDict,
       addWord,
+      editStart,
       insertDisplayValue,
     };
   },

@@ -8,6 +8,7 @@
           :dict="dictionary"
           @createDict="createDictionary"
           @deletDict="deletDictionary"
+          @updateDict="updateDictionary"
           @addWord="addWordExplanation"
           @insertValue="insertDisplayValue"
         />
@@ -24,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import HeaderComponent from "@/components/HeaderComponent.vue";
 import DictionaryListComponent from "@/components/DictionaryListComponent.vue";
 import WordListComponent from "@/components/WordListComponent.vue";
@@ -107,6 +108,20 @@ export default defineComponent({
       dictionary.documentId = "";
       dictionary.timeStamp = "";
       dictionary.uid = "";
+    }
+
+    async function updateDictionary(
+      title: string,
+      documentId: string,
+      index: number
+    ) {
+      await db
+        .collection("user")
+        .doc(await firebase.auth().currentUser?.uid)
+        .collection("dictionary")
+        .doc(documentId)
+        .update({ title: title });
+      postsData.posts[index].title = title;
     }
 
     async function addWordExplanation(
@@ -232,6 +247,7 @@ export default defineComponent({
       dictionary,
       createDictionary,
       deletDictionary,
+      updateDictionary,
       addWordExplanation,
       deleteWordExplanation,
       updateWordExlanation,
