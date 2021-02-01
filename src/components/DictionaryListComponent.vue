@@ -85,7 +85,6 @@ import "firebase/auth";
 import "firebase/firestore";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import Firebase from "../plugins/firebase";
-import ModalWindowCompnent from "@/components/ModalWindowCompnent.vue";
 
 export default defineComponent({
   props: {

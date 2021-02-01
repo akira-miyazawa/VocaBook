@@ -1,26 +1,34 @@
 <template>
   <div id="word-list">
-    {{ dictionary.title }}
-    <el-table :data="dictionary.words">
-      <el-table-column prop="word" />
-      <el-table-column prop="explanation" />
-      <el-table-column>
-        <template #default="scope">
-          <i
-            class="el-icon-edit"
-            @click="editStart(scope.row, scope.$index)"
-          ></i>
-        </template>
-      </el-table-column>
-      <el-table-column>
-        <template #default="scope">
-          <i
-            class="el-icon-delete-solid"
-            @click="deleteWord(dictionary, scope.row, scope.$index)"
-          />
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-radio-group v-model="isStartQuestion">
+      <el-radio-button :label="false">一覧</el-radio-button>
+      <el-radio-button :label="true">問題</el-radio-button>
+    </el-radio-group>
+    <h3>{{ dictionary.title }}</h3>
+    <template v-if="!isStartQuestion">
+      <el-table :data="dictionary.words">
+        <el-table-column prop="word" />
+        <el-table-column prop="explanation" />
+        <el-table-column>
+          <template #default="scope">
+            <i
+              class="el-icon-edit"
+              @click="editStart(scope.row, scope.$index)"
+            ></i>
+          </template>
+        </el-table-column>
+        <el-table-column>
+          <template #default="scope">
+            <i
+              class="el-icon-delete-solid"
+              @click="deleteWord(dictionary, scope.row, scope.$index)"
+            />
+          </template>
+        </el-table-column>
+      </el-table>
+    </template>
+
+    <QuizComponent v-else :dict="dictionary" />
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-form>
         <el-form-item label="ワード">
@@ -45,6 +53,7 @@
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import QuizComponent from "@/components/QuizComponent.vue";
 
 export default defineComponent({
   props: {
@@ -53,6 +62,7 @@ export default defineComponent({
     },
   },
   emits: ["updateWord", "deleteWord"],
+  components: { QuizComponent },
   setup(props, context) {
     const dictionary = computed(() => props.dict);
     const isShowModalWindow = ref<boolean>(false);
@@ -61,6 +71,7 @@ export default defineComponent({
       explanation: "",
     });
     const dictContentsIndex = ref<number>();
+    const isStartQuestion = ref<boolean>(false);
 
     function updateWord(
       dict: Dictionary,
@@ -92,6 +103,7 @@ export default defineComponent({
       isShowModalWindow,
       dictContents,
       dictContentsIndex,
+      isStartQuestion,
       updateWord,
       deleteWord,
       editStart,

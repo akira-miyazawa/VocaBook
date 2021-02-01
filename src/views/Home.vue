@@ -37,13 +37,11 @@ import "firebase/auth";
 import "firebase/firestore";
 
 export default defineComponent({
-  name: "Home",
   components: {
     HeaderComponent,
     DictionaryListComponent,
     WordListComponent,
   },
-
   setup() {
     const postsData = reactive<any>({ posts: [] });
     const dictionary = reactive<Dictionary>({
