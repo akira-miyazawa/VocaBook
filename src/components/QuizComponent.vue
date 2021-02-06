@@ -1,83 +1,38 @@
 <template>
-  <div id="quiz"></div>
-  <button @click="setQuizList(originWords.words)">クイズスタート</button>
-  <br />
-  <br />
-  <template v-for="question in quizList.questions" :key="question">
-    {{ question.question }}
-    <br />
-    <br />
-    <template v-for="item in question.selections" :key="item">
-      {{ item.word }}
+  <div>{{ quiz.question }}</div>
+  <el-radio-group v-model="answer">
+    <template v-for="selection in quiz.selections" :key="selection">
+      <el-radio :label="selection.explanation">{{ selection.word }}</el-radio>
     </template>
-    <br />
-    <br />
-  </template>
+  </el-radio-group>
+  <br /><br />
+  <el-button
+    type="primary"
+    :plain="result"
+    @click="checkResult(quiz.question, answer)"
+    >解答</el-button
+  >
 </template>
-
 <script lang="ts">
-import { DictContents, Dictionary } from "@/types/dectionary";
-import { computed, defineComponent, PropType, reactive, watch } from "vue";
-import _ from "lodash";
-import { Questions } from "@/types/questions";
+import { Question } from "@/types/questions";
+import { computed, defineComponent, PropType, ref } from "vue";
+
 export default defineComponent({
   props: {
-    dict: {
-      type: Object as PropType<Dictionary>,
+    quizOne: {
+      type: Object as PropType<Question>,
     },
   },
-  setup(props) {
-    const quizList = reactive<Questions>({ questions: [] });
-    const dictionary = computed(() => props.dict);
-    const originWords = reactive<any>({ words: [] });
-    const answerWord = reactive<DictContents>({
-      word: "",
-      explanation: "",
-    });
-    const answerWords = reactive<any>({ words: [] });
-    const DummyWords = reactive<any>({ words: [] });
-    originWords.words = dictionary.value?.words;
-    watch(
-      () => dictionary,
-      (newDict, oldDict) => {
-        originWords.title = newDict.value?.title;
-        originWords.words = newDict.value?.words;
-      },
-      { deep: true }
-    );
 
-    function createDummyList(words: DictContents[], index: number) {
-      return words.filter((item) => item.word != words[index].word);
+  setup(props, context) {
+    const quiz = computed(() => props.quizOne);
+    const answer = ref("");
+    const result = ref<boolean>();
+    function checkResult(question: string, answer: string) {
+      result.value = question === answer;
+      context.emit("answerResult", result.value);
     }
-
-    function setQuizList(words: DictContents[]) {
-      quizList.questions = _.shuffle(
-        words.map((item, index) => {
-          const dummyList = createDummyList(words, index);
-          return {
-            question: words[index].explanation,
-            selections: _.shuffle(
-              _.concat(_.sampleSize(dummyList, 3), words[index])
-            ),
-          };
-        })
-      );
-    }
-
-    function checkAnswer(answer: string, response: string) {
-      return answer === response;
-    }
-
-    return {
-      quizList,
-      dictionary,
-      originWords,
-      answerWords,
-      answerWord,
-      DummyWords,
-      createDummyList,
-      setQuizList,
-    };
+    return { quiz, answer, checkResult, result };
   },
 });
 </script>

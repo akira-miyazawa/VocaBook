@@ -28,7 +28,7 @@
       </el-table>
     </template>
 
-    <QuizComponent v-else :dict="dictionary" />
+    <QuizListComponent v-else :dict="dictionary" />
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-form>
         <el-form-item label="ワード">
@@ -53,7 +53,7 @@
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
-import QuizComponent from "@/components/QuizComponent.vue";
+import QuizListComponent from "@/components/QuizListComponent.vue";
 
 export default defineComponent({
   props: {
@@ -62,7 +62,7 @@ export default defineComponent({
     },
   },
   emits: ["updateWord", "deleteWord"],
-  components: { QuizComponent },
+  components: { QuizListComponent },
   setup(props, context) {
     const dictionary = computed(() => props.dict);
     const isShowModalWindow = ref<boolean>(false);
