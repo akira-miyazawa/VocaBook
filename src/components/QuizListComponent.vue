@@ -1,7 +1,10 @@
 <template>
   <div id="quiz-list">
+    {{ isVisibleQuiz }}
     <template v-if="!isVisibleQuiz">
-      <button @click="setQuizList(originWords.words)">クイズスタート</button>
+      <button @click="setQuizList(originWords.words, isVisibleQuiz)">
+        クイズスタート
+      </button>
     </template>
     <template v-else>
       <div>{{ quizIndex + 1 }}/{{ quizList.questions.length }}</div>
@@ -29,12 +32,17 @@ export default defineComponent({
     dict: {
       type: Object as PropType<Dictionary>,
     },
+    isVisible: {
+      type: Boolean,
+    },
   },
   components: {
     QuizComponent,
   },
-  setup(props) {
+  emits: ["substituteTrue", "substituteFalse"],
+  setup(props, context) {
     const dictionary = computed(() => props.dict);
+    const isVisibleQuiz = computed(() => props.isVisible);
     const quizList = reactive<Questions>({ questions: [] });
     const quiz = reactive<Question>({
       question: "",
@@ -42,7 +50,6 @@ export default defineComponent({
     });
     const originWords = reactive<any>({ words: [] });
     const quizIndex = ref<number>(0);
-    const isVisibleQuiz = ref<boolean>(false);
     originWords.words = dictionary.value?.words;
     watch(
       () => dictionary,
@@ -72,7 +79,7 @@ export default defineComponent({
       );
       quiz.question = quizList.questions[quizIndex.value].question;
       quiz.selections = quizList.questions[quizIndex.value].selections;
-      isVisibleQuiz.value = true;
+      context.emit("substituteTrue");
     }
 
     function insertQuiz(quizList: Questions, index: number) {
@@ -90,7 +97,7 @@ export default defineComponent({
         quiz.question = "";
         quiz.selections = [];
         quizIndex.value = 0;
-        isVisibleQuiz.value = false;
+        context.emit("substituteFalse");
         return;
       }
       if (result) {
@@ -100,11 +107,11 @@ export default defineComponent({
     }
 
     return {
+      dictionary,
       quizList,
       quiz,
       quizIndex,
       isVisibleQuiz,
-      dictionary,
       originWords,
       createDummyList,
       setQuizList,

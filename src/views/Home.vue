@@ -6,6 +6,7 @@
         <DictionaryListComponent
           :posts="postsData.posts"
           :dict="dictionary"
+          :isVisible="isVisibleQuiz"
           @createDict="createDictionary"
           @deletDict="deletDictionary"
           @updateDict="updateDictionary"
@@ -16,8 +17,11 @@
       <el-col :span="16">
         <WordListComponent
           :dict="dictionary"
+          :isVisible="isVisibleQuiz"
           @deleteWord="deleteWordExplanation"
           @updateWord="updateWordExlanation"
+          @substituteTrue="substituteTrue"
+          @substituteFalse="substituteFalse"
         />
       </el-col>
     </el-row>
@@ -51,6 +55,7 @@ export default defineComponent({
       documentId: "",
       uid: "",
     });
+    const isVisibleQuiz = ref<boolean>(false);
 
     const db = firebase.firestore();
 
@@ -240,9 +245,18 @@ export default defineComponent({
       dictionary.uid = dict.uid;
     }
 
+    function substituteTrue(result: boolean) {
+      isVisibleQuiz.value = true;
+    }
+
+    function substituteFalse() {
+      isVisibleQuiz.value = false;
+    }
+
     return {
       postsData,
       dictionary,
+      isVisibleQuiz,
       createDictionary,
       deletDictionary,
       updateDictionary,
@@ -250,6 +264,8 @@ export default defineComponent({
       deleteWordExplanation,
       updateWordExlanation,
       insertDisplayValue,
+      substituteTrue,
+      substituteFalse,
     };
   },
 });

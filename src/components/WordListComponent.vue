@@ -28,7 +28,13 @@
       </el-table>
     </template>
 
-    <QuizListComponent v-else :dict="dictionary" />
+    <QuizListComponent
+      v-else
+      :dict="dictionary"
+      :isVisible="isVisibleQuiz"
+      @substituteTrue="substituteTrue"
+      @substituteFalse="substituteFalse"
+    />
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-form>
         <el-form-item label="ワード">
@@ -54,17 +60,22 @@
 import { DictContents, Dictionary } from "@/types/dectionary";
 import { computed, defineComponent, PropType, reactive, ref } from "vue";
 import QuizListComponent from "@/components/QuizListComponent.vue";
+import { functions } from "lodash";
 
 export default defineComponent({
   props: {
     dict: {
       type: Object as PropType<Dictionary>,
     },
+    isVisible: {
+      type: Boolean,
+    },
   },
-  emits: ["updateWord", "deleteWord"],
+  emits: ["updateWord", "deleteWord", "substituteTrue", "substituteFalse"],
   components: { QuizListComponent },
   setup(props, context) {
     const dictionary = computed(() => props.dict);
+    const isVisibleQuiz = computed(() => props.isVisible);
     const isShowModalWindow = ref<boolean>(false);
     const dictContents = reactive<DictContents>({
       word: "",
@@ -98,8 +109,16 @@ export default defineComponent({
       isShowModalWindow.value = true;
     }
 
+    function substituteTrue() {
+      context.emit("substituteTrue");
+    }
+    function substituteFalse() {
+      context.emit("substituteFalse");
+    }
+
     return {
       dictionary,
+      isVisibleQuiz,
       isShowModalWindow,
       dictContents,
       dictContentsIndex,
@@ -107,6 +126,8 @@ export default defineComponent({
       updateWord,
       deleteWord,
       editStart,
+      substituteTrue,
+      substituteFalse,
     };
   },
 });

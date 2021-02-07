@@ -5,18 +5,28 @@
         <el-card class="card">
           <h2>VocaBook</h2>
           <h3>新規作成</h3>
-          <el-input class="name" type="text" v-model="dictTitle" />
+          <el-input
+            class="name"
+            type="text"
+            v-model="dictTitle"
+            :disabled="isVisibleQuiz"
+          />
           <el-button
             type="primary"
             icon="el-icon-notebook-2"
             @click="createDict(dictTitle)"
             circle
+            :disabled="isVisibleQuiz"
           />
         </el-card>
       </el-col>
       <template v-for="(dict, index) in dictionaries" :key="index">
         <el-col :span="12">
-          <el-card class="card" @click="insertDisplayValue(dict)">
+          <el-card
+            class="card"
+            @click="insertDisplayValue(dict)"
+            shadow="hover"
+          >
             {{ `「${dict.title}」` }}
             <el-button
               type="info"
@@ -94,6 +104,9 @@ export default defineComponent({
     dict: {
       type: Object as PropType<Dictionary>,
     },
+    isVisible: {
+      type: Boolean,
+    },
   },
   emits: [
     "createDict",
@@ -106,6 +119,7 @@ export default defineComponent({
   setup(props, context) {
     const dictionaries = computed(() => props.posts);
     const dictionary = computed(() => props.dict);
+    const isVisibleQuiz = computed(() => props.isVisible);
     const dictTitle = ref<string>("");
     const dictContents = reactive<DictContents>({
       word: "",
@@ -146,12 +160,15 @@ export default defineComponent({
     }
 
     function insertDisplayValue(dict: Dictionary) {
-      context.emit("insertValue", dict);
+      if (!isVisibleQuiz.value) {
+        context.emit("insertValue", dict);
+      }
     }
 
     return {
       dictionaries,
       dictionary,
+      isVisibleQuiz,
       updateTitle,
       updateDocumentId,
       updateDictIndex,
