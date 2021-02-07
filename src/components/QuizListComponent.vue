@@ -1,14 +1,22 @@
 <template>
   <div id="quiz-list">
-    {{ isVisibleQuiz }}
     <template v-if="!isVisibleQuiz">
-      <button @click="setQuizList(originWords.words, isVisibleQuiz)">
+      <el-button
+        @click="setQuizList(originWords.words, isVisibleQuiz)"
+        type="success"
+        icon="el-icon-success"
+        plain
+      >
         クイズスタート
-      </button>
+      </el-button>
     </template>
     <template v-else>
       <div>{{ quizIndex + 1 }}/{{ quizList.questions.length }}</div>
-      <QuizComponent :quizOne="quiz" @answerResult="answerResult" />
+      <QuizComponent
+        :quizOne="quiz"
+        @answerResult="answerResult"
+        @pauseQuiz="pauseQuiz"
+      />
     </template>
   </div>
 </template>
@@ -88,8 +96,6 @@ export default defineComponent({
     }
 
     function answerResult(result: boolean) {
-      console.log(quizIndex.value);
-      console.log(quizList.questions.length);
       if (!result) {
         return;
       }
@@ -106,6 +112,13 @@ export default defineComponent({
       }
     }
 
+    function pauseQuiz() {
+      quiz.question = "";
+      quiz.selections = [];
+      quizIndex.value = 0;
+      context.emit("substituteFalse");
+    }
+
     return {
       dictionary,
       quizList,
@@ -117,6 +130,7 @@ export default defineComponent({
       setQuizList,
       answerResult,
       insertQuiz,
+      pauseQuiz,
     };
   },
 });

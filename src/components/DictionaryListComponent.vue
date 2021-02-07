@@ -32,20 +32,32 @@
               type="info"
               icon="el-icon-edit"
               @click="editStart(dict, index)"
+              :disabled="isVisibleQuiz"
               circle
             />
             <el-button
               type="success"
               icon="el-icon-plus"
               @click="isShowModalWindow = true"
+              :disabled="isVisibleQuiz"
               circle
             />
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              @click="deleteDict(dict.documentId)"
-              circle
-            />
+            <el-popconfirm
+              confirmButtonText="削除する"
+              cancelButtonText="キャンセル"
+              iconColor="red"
+              title="本当に削除してよろしいですか"
+              @confirm="deleteDict(dict.documentId)"
+            >
+              <template #reference>
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  :disabled="isVisibleQuiz"
+                  circle
+                />
+              </template>
+            </el-popconfirm>
           </el-card>
         </el-col>
       </template>

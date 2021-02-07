@@ -1,7 +1,9 @@
 <template>
   <div id="word-list">
     <el-radio-group v-model="isStartQuestion">
-      <el-radio-button :label="false">一覧</el-radio-button>
+      <el-radio-button :label="false" :disabled="isVisibleQuiz"
+        >一覧</el-radio-button
+      >
       <el-radio-button :label="true">問題</el-radio-button>
     </el-radio-group>
     <h3>{{ dictionary.title }}</h3>
@@ -89,7 +91,6 @@ export default defineComponent({
       dictContents: DictContents,
       index: number
     ) {
-      console.log(`dictContentsIndex:${dictContentsIndex.value}`);
       context.emit("updateWord", dict, dictContents, dictContentsIndex.value);
       isShowModalWindow.value = false;
     }

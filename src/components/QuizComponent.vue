@@ -12,6 +12,7 @@
     @click="checkResult(quiz.question, answerValue)"
     >解答</el-button
   >
+  <el-button type="info" @click="pauseQuiz">リセット</el-button>
 </template>
 <script lang="ts">
 import { Question } from "@/types/questions";
@@ -24,7 +25,7 @@ export default defineComponent({
       type: Object as PropType<Question>,
     },
   },
-
+  emits: ["answerResult", "pauseQuiz"],
   setup(props, context) {
     const quiz = computed(() => props.quizOne);
     const answerValue = ref("");
@@ -42,7 +43,10 @@ export default defineComponent({
       answerValue.value = "";
       context.emit("answerResult", result.value);
     }
-    return { quiz, answerValue, checkResult, result };
+    function pauseQuiz() {
+      context.emit("pauseQuiz");
+    }
+    return { quiz, answerValue, checkResult, result, pauseQuiz };
   },
 });
 </script>
