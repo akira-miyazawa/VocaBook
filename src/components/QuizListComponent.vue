@@ -23,15 +23,7 @@
 
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
-import {
-  computed,
-  defineComponent,
-  PropType,
-  reactive,
-  Ref,
-  ref,
-  watch,
-} from "vue";
+import { computed, defineComponent, PropType, reactive, ref, watch } from "vue";
 import _ from "lodash";
 import { Question, Questions } from "@/types/questions";
 import QuizComponent from "@/components/QuizComponent.vue";

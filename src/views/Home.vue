@@ -1,6 +1,9 @@
 <template>
   <div class="operation">
-    <HeaderComponent />
+    <HeaderComponent
+      :isVisible="isVisibleQuiz"
+      @createDict="createDictionary"
+    />
     <el-row>
       <el-col :span="8">
         <DictionaryListComponent
@@ -29,12 +32,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import HeaderComponent from "@/components/HeaderComponent.vue";
 import DictionaryListComponent from "@/components/DictionaryListComponent.vue";
 import WordListComponent from "@/components/WordListComponent.vue";
 import Firebase from "../plugins/firebase";
-import store from "@/store/store";
 import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase/app";
 import "firebase/auth";
@@ -132,7 +134,7 @@ export default defineComponent({
       dictContents: DictContents
     ) {
       const beforeDictLength = dict.words.length;
-
+      // FireStoreは同じ内容の配列を入れることができない
       await db
         .collection("user")
         .doc(await firebase.auth().currentUser?.uid)
@@ -153,6 +155,7 @@ export default defineComponent({
         uid: "",
       };
 
+      // 取得処理
       await db
         .collection("user")
         .doc(await firebase.auth().currentUser?.uid)

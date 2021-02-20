@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import firebase from "../../src/plugins/firebase";
-import { computed, defineComponent, reactive } from "vue";
+import { defineComponent, reactive } from "vue";
 import { UserLogin } from "../types/user";
 import { useStore } from "vuex";
 

@@ -38,6 +38,13 @@
       @substituteFalse="substituteFalse"
     />
     <el-dialog class="modal-window" v-model="isShowModalWindow">
+      <el-alert
+        title="すでに保存されている内容があります"
+        type="error"
+        show-icon
+        :closable="false"
+        v-if="isDuplicate"
+      ></el-alert>
       <el-form>
         <el-form-item label="ワード">
           <el-input v-model="dictContents.word"></el-input>
@@ -49,7 +56,9 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="isShowModalWindow = false">キャンセル</el-button>
-          <el-button @click="updateWord(dictionary, dictContents)"
+          <el-button
+            @click="updateWord(dictionary, dictContents)"
+            :disabled="isEmpty || isDuplicate"
             >変更する</el-button
           >
         </span>
@@ -60,9 +69,8 @@
 
 <script lang="ts">
 import { DictContents, Dictionary } from "@/types/dectionary";
-import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import { computed, defineComponent, PropType, reactive, ref, watch } from "vue";
 import QuizListComponent from "@/components/QuizListComponent.vue";
-import { functions } from "lodash";
 
 export default defineComponent({
   props: {
@@ -85,12 +93,37 @@ export default defineComponent({
     });
     const dictContentsIndex = ref<number>();
     const isStartQuestion = ref<boolean>(false);
+    const isEmpty = ref<boolean>(false);
+    const isDuplicate = ref<boolean>(false);
 
-    function updateWord(
-      dict: Dictionary,
-      dictContents: DictContents,
-      index: number
-    ) {
+    watch(dictContents, (newContents) => {
+      dictContents.word = dictContents.word.replace(/\s+/g, "");
+      dictContents.explanation = dictContents.explanation.replace(/\s+/g, "");
+      if (dictContents.word === "" || dictContents.explanation === "") {
+        isEmpty.value = true;
+        return;
+      }
+      isEmpty.value = false;
+    });
+
+    watch(dictContents, () => {
+      const updateWords = dictionary.value?.words.filter(
+        (w, index) => index != dictContentsIndex.value
+      );
+      if (updateWords == undefined) return;
+      if (
+        updateWords.some(
+          (w) =>
+            w.word === dictContents.word || w.word === dictContents.explanation
+        )
+      ) {
+        isDuplicate.value = true;
+        return;
+      }
+      isDuplicate.value = false;
+    });
+
+    function updateWord(dict: Dictionary, dictContents: DictContents) {
       context.emit("updateWord", dict, dictContents, dictContentsIndex.value);
       isShowModalWindow.value = false;
     }
@@ -124,6 +157,8 @@ export default defineComponent({
       dictContents,
       dictContentsIndex,
       isStartQuestion,
+      isEmpty,
+      isDuplicate,
       updateWord,
       deleteWord,
       editStart,

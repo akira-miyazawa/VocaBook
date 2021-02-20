@@ -1,25 +1,6 @@
 <template>
   <div id="dictionary-list">
     <el-row>
-      <el-col :span="12">
-        <el-card class="card">
-          <h2>VocaBook</h2>
-          <h3>新規作成</h3>
-          <el-input
-            class="name"
-            type="text"
-            v-model="dictTitle"
-            :disabled="isVisibleQuiz"
-          />
-          <el-button
-            type="primary"
-            icon="el-icon-notebook-2"
-            @click="createDict(dictTitle)"
-            circle
-            :disabled="isVisibleQuiz"
-          />
-        </el-card>
-      </el-col>
       <template v-for="(dict, index) in dictionaries" :key="index">
         <el-col :span="12">
           <el-card
@@ -73,12 +54,20 @@
           <el-button @click="isModal = false">キャンセル</el-button>
           <el-button
             @click="updateDict(updateTitle, updateDocumentId, updateDictIndex)"
+            :disabled="isEmpty"
             >追加する</el-button
           >
         </span>
       </template>
     </el-dialog>
     <el-dialog class="modal-window" v-model="isShowModalWindow">
+      <el-alert
+        title="すでに保存されている内容があります"
+        type="error"
+        show-icon
+        :closable="false"
+        v-if="isDuplicate"
+      ></el-alert>
       <el-form>
         <el-form-item label="ワード">
           <el-input v-model="dictContents.word"></el-input>
@@ -90,7 +79,9 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="isShowModalWindow = false">キャンセル</el-button>
-          <el-button @click="addWord(dictionary, dictContents)"
+          <el-button
+            @click="addWord(dictionary, dictContents)"
+            :disabled="isEmpty || isDuplicate"
             >追加する</el-button
           >
         </span>
@@ -100,13 +91,8 @@
 </template>
 
 <script lang="ts">
-import store from "@/store/store";
 import { DictContents, Dictionary } from "@/types/dectionary";
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-import { computed, defineComponent, PropType, reactive, ref } from "vue";
-import Firebase from "../plugins/firebase";
+import { computed, defineComponent, PropType, reactive, ref, watch } from "vue";
 
 export default defineComponent({
   props: {
@@ -120,14 +106,7 @@ export default defineComponent({
       type: Boolean,
     },
   },
-  emits: [
-    "createDict",
-    "deletDict",
-    "updateDict",
-    "addWord",
-    "insertValue",
-    "editStart",
-  ],
+  emits: ["deletDict", "updateDict", "addWord", "insertValue", "editStart"],
   setup(props, context) {
     const dictionaries = computed(() => props.posts);
     const dictionary = computed(() => props.dict);
@@ -142,13 +121,39 @@ export default defineComponent({
     const updateTitle = ref<string>("");
     const updateDocumentId = ref<string>("");
     const updateDictIndex = ref<number>();
+    const isEmpty = ref<boolean>(true);
+    const isDuplicate = ref<boolean>(false);
 
-    const db = firebase.firestore();
+    watch(updateTitle, (newTitle) => {
+      if (newTitle === "") {
+        isEmpty.value = true;
+        return;
+      }
+      isEmpty.value = false;
+    });
 
-    function createDict(title: string) {
-      context.emit("createDict", title);
-      dictTitle.value = "";
-    }
+    watch(dictContents, () => {
+      dictContents.word = dictContents.word.replace(/\s+/g, "");
+      dictContents.explanation = dictContents.explanation.replace(/\s+/g, "");
+      if (dictContents.word === "" || dictContents.explanation === "") {
+        isEmpty.value = true;
+        return;
+      }
+      isEmpty.value = false;
+    });
+
+    watch(dictContents, () => {
+      if (
+        dictionary.value?.words.some(
+          (w) =>
+            w.word === dictContents.word || w.word === dictContents.explanation
+        )
+      ) {
+        isDuplicate.value = true;
+        return;
+      }
+      isDuplicate.value = false;
+    });
 
     function deleteDict(documentId: string) {
       context.emit("deletDict", documentId);
@@ -184,11 +189,12 @@ export default defineComponent({
       updateTitle,
       updateDocumentId,
       updateDictIndex,
+      isEmpty,
+      isDuplicate,
       dictContents,
       dictTitle,
       isModal,
       isShowModalWindow,
-      createDict,
       deleteDict,
       updateDict,
       addWord,

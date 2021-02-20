@@ -2,7 +2,20 @@
   <div id="header">
     <el-row height="80px">
       <el-col :span="8" class="user-auth">
-        <i class="el-icon-user-solid">{{ displayName }} さん</i>
+        <el-row>
+          <el-col :span="16">
+            <el-input
+              type="text"
+              v-model="dictTitle"
+              :disabled="isVisibleQuiz"
+            />
+          </el-col>
+          <el-col :span="8">
+            <el-button @click="createDict(dictTitle)" :disabled="isVisibleQuiz"
+              >新規作成</el-button
+            >
+          </el-col>
+        </el-row>
       </el-col>
       <el-col :span="8">
         <svg
@@ -475,6 +488,7 @@
         </svg>
       </el-col>
       <el-col :span="8" class="user-auth">
+        <i class="el-icon-user-solid">{{ displayName }} さん</i>
         <el-button type="info" @click="logout">ログアウト</el-button>
       </el-col>
     </el-row>
@@ -482,12 +496,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import Firebase from "../plugins/firebase";
 
 export default defineComponent({
-  setup() {
+  props: {
+    isVisible: {
+      type: Boolean,
+    },
+  },
+  emits: ["createDict"],
+  setup(props, context) {
     const displayName = ref(localStorage.getItem("jwt"));
+    const dictTitle = ref<string>("");
+    const isVisibleQuiz = computed(() => props.isVisible);
+    const isEmpty = ref<boolean>(false);
+
+    watch(dictTitle, (newTitle) => {
+      dictTitle.value = dictTitle.value.replace(/\s+/g, "");
+    });
+
+    function createDict(title: string) {
+      if (title === "") {
+        return;
+      }
+      context.emit("createDict", title);
+      dictTitle.value = "";
+    }
 
     async function logout() {
       try {
@@ -499,7 +534,11 @@ export default defineComponent({
 
     return {
       displayName,
+      isEmpty,
       logout,
+      dictTitle,
+      createDict,
+      isVisibleQuiz,
     };
   },
 });
