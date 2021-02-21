@@ -127,7 +127,8 @@ export default defineComponent({
       if (
         updateWords.some(
           (w) =>
-            w.word === dictContents.word || w.word === dictContents.explanation
+            w.word === dictContents.word ||
+            w.explanation === dictContents.explanation
         )
       ) {
         isDuplicate.value = true;

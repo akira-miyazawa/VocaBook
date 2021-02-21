@@ -145,7 +145,8 @@ export default defineComponent({
       if (
         dictionary.value?.words.some(
           (w) =>
-            w.word === dictContents.word || w.word === dictContents.explanation
+            w.word === dictContents.word ||
+            w.explanation === dictContents.explanation
         )
       ) {
         isDuplicate.value = true;
