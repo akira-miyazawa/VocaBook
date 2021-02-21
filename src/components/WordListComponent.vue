@@ -1,12 +1,19 @@
 <template>
   <div id="word-list">
-    <el-radio-group v-model="isStartQuestion">
-      <el-radio-button :label="false" :disabled="isVisibleQuiz"
-        >一覧</el-radio-button
+    <el-row class="list-header">
+      <el-col :span="8">
+        <el-radio-group v-model="isStartQuestion">
+          <el-radio-button :label="false" :disabled="isVisibleQuiz"
+            >一覧</el-radio-button
+          >
+          <el-radio-button :label="true">問題</el-radio-button>
+        </el-radio-group></el-col
       >
-      <el-radio-button :label="true">問題</el-radio-button>
-    </el-radio-group>
-    <h3>{{ dictionary.title }}</h3>
+      <el-col :span="8"
+        ><h2>{{ dictionary.title }}</h2></el-col
+      >
+      <el-col :span="8">単語数: {{ dictionary.words.length }}</el-col>
+    </el-row>
     <template v-if="!isStartQuestion">
       <el-table
         :data="dictionary.words"
@@ -186,6 +193,11 @@ export default defineComponent({
 #word-list {
   height: 100%;
   margin: 10px 20px 0 10px;
+}
+.list-header {
+  padding: 10px;
+  border-bottom: 1px solid #b9b5b5;
+  align-items: center;
 }
 .table {
   width: 100%;

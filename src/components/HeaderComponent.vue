@@ -8,10 +8,15 @@
               type="text"
               v-model="dictTitle"
               :disabled="isVisibleQuiz"
+              clearable
             />
           </el-col>
           <el-col :span="8">
-            <el-button @click="createDict(dictTitle)" :disabled="isVisibleQuiz"
+            <el-button
+              @click="createDict(dictTitle)"
+              :disabled="isVisibleQuiz"
+              type="primary"
+              plain
               >新規作成</el-button
             >
           </el-col>
@@ -512,7 +517,7 @@ export default defineComponent({
     const isVisibleQuiz = computed(() => props.isVisible);
     const isEmpty = ref<boolean>(false);
 
-    watch(dictTitle, (newTitle) => {
+    watch(dictTitle, () => {
       dictTitle.value = dictTitle.value.replace(/\s+/g, "");
     });
 
