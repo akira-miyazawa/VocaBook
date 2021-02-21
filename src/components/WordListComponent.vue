@@ -8,12 +8,21 @@
     </el-radio-group>
     <h3>{{ dictionary.title }}</h3>
     <template v-if="!isStartQuestion">
-      <el-table :data="dictionary.words" :show-header="false" class="table">
-        <el-table-column prop="word" />
+      <el-table
+        :data="dictionary.words"
+        :show-header="false"
+        class="table"
+        style="width: 100%"
+      >
+        <el-table-column prop="word" width="300" />
         <el-table-column prop="explanation" />
-        <el-table-column align="right">
+        <el-table-column align="right" width="180">
           <template #default="scope">
-            <el-button size="mini" @click="editStart(scope.row, scope.$index)">
+            <el-button
+              size="mini"
+              type="info"
+              @click="editStart(scope.row, scope.$index)"
+            >
               <i class="el-icon-edit"></i>
             </el-button>
             <el-popconfirm
@@ -25,7 +34,7 @@
             >
               <template #reference>
                 <el-button size="mini" type="danger">
-                  <i class="el-icon-delete-solid" />
+                  <i class="el-icon-delete" />
                 </el-button>
               </template>
             </el-popconfirm>
@@ -173,10 +182,24 @@ export default defineComponent({
 });
 </script>
 <style scoped lang="postcss">
+#word-list {
+  height: 100%;
+  margin: 10px 20px 0 10px;
+}
 .table {
-  max-height: 75vh;
+  width: 100%;
+  max-height: 70vh;
   overflow: scroll;
   margin-right: 10px;
+}
+.el-table__row >>> td {
+  width: 30%;
+}
+.el-table_1_column_2 {
+  width: 60%;
+}
+.el-table_1_column_3 {
+  width: 10%%;
 }
 .el-table::before {
   left: 0;

@@ -2,26 +2,24 @@
   <div id="dictionary-list">
     <el-row>
       <template v-for="(dict, index) in dictionaries" :key="index">
-        <el-col :span="12">
-          <el-card
-            class="card"
-            @click="insertDisplayValue(dict)"
-            shadow="hover"
-          >
-            {{ `「${dict.title}」` }}
+        <el-card class="card" @click="insertDisplayValue(dict)" shadow="hover">
+          <el-row>
+            <el-row class="text">{{ `${dict.title}` }}</el-row>
             <el-button
-              type="info"
-              icon="el-icon-edit"
-              @click="editStart(dict, index)"
-              :disabled="isVisibleQuiz"
-              circle
-            />
-            <el-button
+              class="button"
               type="success"
               icon="el-icon-plus"
               @click="isShowModalWindow = true"
               :disabled="isVisibleQuiz"
-              circle
+              size="mini"
+            />
+            <el-button
+              class="button"
+              type="info"
+              icon="el-icon-edit"
+              @click="editStart(dict, index)"
+              :disabled="isVisibleQuiz"
+              size="mini"
             />
             <el-popconfirm
               confirmButtonText="削除する"
@@ -32,15 +30,16 @@
             >
               <template #reference>
                 <el-button
+                  class="button"
                   type="danger"
                   icon="el-icon-delete"
                   :disabled="isVisibleQuiz"
-                  circle
+                  size="mini"
                 />
               </template>
             </el-popconfirm>
-          </el-card>
-        </el-col>
+          </el-row>
+        </el-card>
       </template>
     </el-row>
     <el-dialog class="modal-window" v-model="isModal">
@@ -205,12 +204,36 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="scss">
+<style  lang="postcss" scoped>
 #dictionary-list {
   height: 80vh;
   overflow: scroll;
+  margin: 10px;
 }
 .card {
+  display: flex;
   margin: 10px;
+  writing-mode: vertical-rl;
+  font-size: 20px;
+  height: 350px;
+}
+.card >>> .el-card {
+  border: 1px solid #b9b5b5;
+  box-shadow: 2px -10px 5px #b9b5b5;
+  border-bottom-right-radius: 2000px 300px;
+  border-bottom-left-radius: 2000px 300px;
+}
+.text {
+  border: 1px solid #b9b5b5;
+  border-bottom-right-radius: 2000px 300px;
+  border-bottom-left-radius: 2000px 300px;
+  height: 200px;
+  align-items: center;
+  justify-content: center;
+  overflow: scroll;
+}
+.button {
+  margin-top: 5px;
+  margin-left: 0;
 }
 </style>

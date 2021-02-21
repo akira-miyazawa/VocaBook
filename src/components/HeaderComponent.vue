@@ -1,5 +1,5 @@
 <template>
-  <div id="header">
+  <div id="header" class="header">
     <el-row>
       <el-col :span="8" class="user-auth">
         <el-row>
@@ -545,8 +545,28 @@ export default defineComponent({
 </script>
 <style lang="postcss" scoped>
 #header {
+  margin: 0 10px 0 10px;
   height: 20%;
-  border-bottom: solid 1px #dcdfe6;
+  border-bottom: solid 1px #9e0e60;
+  position: relative;
+  width: 99%;
+}
+.header::before {
+  content: "";
+  display: block;
+  border-bottom: 1px solid #8ad88c;
+  width: 33%;
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+}
+.header::after {
+  content: "";
+  display: block;
+  border-bottom: 1px solid #bcb0ae;
+  width: 33%;
+  position: absolute;
+  right: 0;
 }
 .icon {
   text-align: center;

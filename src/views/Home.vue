@@ -5,7 +5,7 @@
       @createDict="createDictionary"
     />
     <el-row>
-      <el-col :span="8">
+      <el-col :span="6">
         <DictionaryListComponent
           :posts="postsData.posts"
           :dict="dictionary"
@@ -17,7 +17,7 @@
           @insertValue="insertDisplayValue"
         />
       </el-col>
-      <el-col :span="16">
+      <el-col :span="18">
         <WordListComponent
           :dict="dictionary"
           :isVisible="isVisibleQuiz"
