@@ -481,10 +481,9 @@
 
 <script lang="ts">
 import Firebase from "../../src/plugins/firebase";
-import { computed, defineComponent, onMounted, reactive, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import LoginComponent from "@/components/LoginComponent.vue";
 import RegisterComponent from "@/components/RegisterComponent.vue";
-import { useStore } from "vuex";
 import Vivus from "vivus";
 
 export default defineComponent({
