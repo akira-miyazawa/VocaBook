@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <el-row height="80px">
+    <el-row>
       <el-col :span="8" class="user-auth">
         <el-row>
           <el-col :span="16">
@@ -545,7 +545,7 @@ export default defineComponent({
 </script>
 <style lang="postcss" scoped>
 #header {
-  margin: 20px;
+  height: 20%;
   border-bottom: solid 1px #dcdfe6;
 }
 .icon {

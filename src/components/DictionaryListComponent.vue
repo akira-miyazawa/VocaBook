@@ -206,6 +206,10 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+#dictionary-list {
+  height: 80vh;
+  overflow: scroll;
+}
 .card {
   margin: 10px;
 }

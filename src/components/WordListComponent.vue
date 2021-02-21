@@ -8,23 +8,27 @@
     </el-radio-group>
     <h3>{{ dictionary.title }}</h3>
     <template v-if="!isStartQuestion">
-      <el-table :data="dictionary.words">
+      <el-table :data="dictionary.words" :show-header="false" class="table">
         <el-table-column prop="word" />
         <el-table-column prop="explanation" />
-        <el-table-column>
+        <el-table-column align="right">
           <template #default="scope">
-            <i
-              class="el-icon-edit"
-              @click="editStart(scope.row, scope.$index)"
-            ></i>
-          </template>
-        </el-table-column>
-        <el-table-column>
-          <template #default="scope">
-            <i
-              class="el-icon-delete-solid"
-              @click="deleteWord(dictionary, scope.row, scope.$index)"
-            />
+            <el-button size="mini" @click="editStart(scope.row, scope.$index)">
+              <i class="el-icon-edit"></i>
+            </el-button>
+            <el-popconfirm
+              confirmButtonText="削除する"
+              cancelButtonText="キャンセル"
+              iconColor="red"
+              title="本当に削除してよろしいですか"
+              @confirm="deleteWord(dictionary, scope.row, scope.$index)"
+            >
+              <template #reference>
+                <el-button size="mini" type="danger">
+                  <i class="el-icon-delete-solid" />
+                </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -168,3 +172,16 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped lang="postcss">
+.table {
+  max-height: 75vh;
+  overflow: scroll;
+  margin-right: 10px;
+}
+.el-table::before {
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+}
+</style>

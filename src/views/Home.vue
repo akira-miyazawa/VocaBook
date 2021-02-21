@@ -1,5 +1,5 @@
 <template>
-  <div class="operation">
+  <div id="home">
     <HeaderComponent
       :isVisible="isVisibleQuiz"
       @createDict="createDictionary"
