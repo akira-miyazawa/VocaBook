@@ -74,10 +74,8 @@ export default defineComponent({
     async function logout() {
       try {
         await firebase.logout();
-        alert("ログアウトに成功しました！");
       } catch (err) {
         console.error(err);
-        alert("ログアウトに失敗しました...");
       }
     }
 

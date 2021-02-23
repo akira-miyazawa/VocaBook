@@ -2,44 +2,51 @@
   <div id="dictionary-list">
     <el-row>
       <template v-for="(dict, index) in dictionaries" :key="index">
-        <el-card class="card" @click="insertDisplayValue(dict)" shadow="hover">
-          <el-row>
-            <el-row class="text">{{ `${dict.title}` }}</el-row>
-            <el-button
-              class="button"
-              type="success"
-              icon="el-icon-plus"
-              @click="isShowModalWindow = true"
-              :disabled="isVisibleQuiz"
-              size="mini"
-            />
-            <el-button
-              class="button"
-              type="info"
-              icon="el-icon-edit"
-              @click="editStart(dict, index)"
-              :disabled="isVisibleQuiz"
-              size="mini"
-            />
-            <el-popconfirm
-              confirmButtonText="削除する"
-              cancelButtonText="キャンセル"
-              iconColor="red"
-              title="本当に削除してよろしいですか"
-              @confirm="deleteDict(dict.documentId)"
-            >
-              <template #reference>
-                <el-button
-                  class="button"
-                  type="danger"
-                  icon="el-icon-delete"
-                  :disabled="isVisibleQuiz"
-                  size="mini"
-                />
-              </template>
-            </el-popconfirm>
-          </el-row>
-        </el-card>
+        <transition
+          name="el-zoom-in-center"
+          :class="{ selected: dict.documentId === updateDocumentId }"
+        >
+          <el-card class="card" @click="insertDisplayValue(dict)">
+            <el-row class="card-inside">
+              <el-row class="text-inside"
+                ><span class="text">{{ `${dict.title}` }}</span></el-row
+              >
+              <el-button
+                class="button"
+                type="success"
+                icon="el-icon-plus"
+                @click="isShowModalWindow = true"
+                :disabled="isVisibleQuiz"
+                size="mini"
+              />
+              <el-button
+                class="button"
+                type="info"
+                icon="el-icon-edit"
+                @click="editStart(dict, index)"
+                :disabled="isVisibleQuiz"
+                size="mini"
+              />
+              <el-popconfirm
+                confirmButtonText="削除する"
+                cancelButtonText="キャンセル"
+                iconColor="red"
+                title="本当に削除してよろしいですか"
+                @confirm="deleteDict(dict.documentId)"
+              >
+                <template #reference>
+                  <el-button
+                    class="button"
+                    type="danger"
+                    icon="el-icon-delete"
+                    :disabled="isVisibleQuiz"
+                    size="mini"
+                  />
+                </template>
+              </el-popconfirm>
+            </el-row>
+          </el-card>
+        </transition>
       </template>
     </el-row>
     <el-dialog class="modal-window" v-model="isModal">
@@ -54,25 +61,40 @@
           <el-button
             @click="updateDict(updateTitle, updateDocumentId, updateDictIndex)"
             :disabled="isEmpty"
-            >追加する</el-button
+            >編集する</el-button
           >
         </span>
       </template>
     </el-dialog>
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-alert
+        title="文字数上限に達しています"
+        type="error"
+        show-icon
+        :closable="false"
+        v-if="isInputLimit"
+      />
+      <el-alert
         title="すでに保存されている内容があります"
         type="error"
         show-icon
         :closable="false"
         v-if="isDuplicate"
-      ></el-alert>
+      />
       <el-form>
         <el-form-item label="ワード">
-          <el-input v-model="dictContents.word"></el-input>
+          <el-input
+            v-model="dictContents.word"
+            placeholder="30文字以下"
+          ></el-input>
         </el-form-item>
         <el-form-item label="解説">
-          <el-input v-model="dictContents.explanation"></el-input>
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            v-model="dictContents.explanation"
+            placeholder="100文字以下"
+          ></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -121,6 +143,7 @@ export default defineComponent({
     const updateDocumentId = ref<string>("");
     const updateDictIndex = ref<number>();
     const isEmpty = ref<boolean>(true);
+    const isInputLimit = ref<boolean>(false);
     const isDuplicate = ref<boolean>(false);
 
     watch(updateTitle, (newTitle) => {
@@ -139,6 +162,15 @@ export default defineComponent({
         return;
       }
       isEmpty.value = false;
+      console.log(dictContents.word.length);
+      if (
+        dictContents.word.length > 30 ||
+        dictContents.explanation.length > 100
+      ) {
+        isInputLimit.value = true;
+        return;
+      }
+      isInputLimit.value = false;
     });
 
     watch(dictContents, () => {
@@ -178,7 +210,9 @@ export default defineComponent({
 
     function insertDisplayValue(dict: Dictionary) {
       if (!isVisibleQuiz.value) {
+        updateDocumentId.value = dict.documentId;
         context.emit("insertValue", dict);
+        return true;
       }
     }
 
@@ -190,6 +224,7 @@ export default defineComponent({
       updateDocumentId,
       updateDictIndex,
       isEmpty,
+      isInputLimit,
       isDuplicate,
       dictContents,
       dictTitle,
@@ -214,8 +249,9 @@ export default defineComponent({
 .card {
   display: flex;
   margin: 10px;
-  writing-mode: vertical-rl;
   font-size: 20px;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
   height: 350px;
 }
 .card >>> .el-card {
@@ -224,17 +260,37 @@ export default defineComponent({
   border-bottom-right-radius: 2000px 300px;
   border-bottom-left-radius: 2000px 300px;
 }
-.text {
+.selected >>> .el-card {
+  background-color: #b3d8ff;
+}
+/* .card-inside {
+  margin: 20px;
+} */
+.text-inside {
   border: 1px solid #b9b5b5;
   border-bottom-right-radius: 2000px 300px;
   border-bottom-left-radius: 2000px 300px;
+  max-height: 200px;
   height: 200px;
   align-items: center;
-  justify-content: center;
   overflow: scroll;
+}
+.text {
+  margin: 5px;
 }
 .button {
   margin-top: 5px;
   margin-left: 0;
+}
+.anime-enter {
+  transition: opacity 5s;
+}
+.anime-enter-active {
+}
+.anime-leave-active {
+  transition: opacity 5s;
+}
+.anime-leave-to {
+  transition: opacity 5s;
 }
 </style>

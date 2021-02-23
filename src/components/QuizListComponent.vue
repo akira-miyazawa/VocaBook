@@ -1,17 +1,34 @@
 <template>
   <div id="quiz-list">
     <template v-if="!isVisibleQuiz">
-      <el-button
-        @click="setQuizList(originWords.words, isVisibleQuiz)"
-        type="success"
-        icon="el-icon-success"
-        plain
-      >
-        クイズスタート
-      </el-button>
+      <template v-if="originWords.words.length < 4">
+        <el-alert
+          class="info"
+          title="＋ボタンから単語を登録して問題機能を使ってみよう"
+          type="success"
+          center
+          :closable="false"
+          ><i class="el-icon-info" />
+          4つ以上の単語を登録していただくと使用することができます
+        </el-alert>
+      </template>
+      <template v-else>
+        <el-button
+          @click="setQuizList(originWords.words, isVisibleQuiz)"
+          type="success"
+          icon="el-icon-success"
+          plain
+        >
+          クイズスタート
+        </el-button>
+      </template>
     </template>
     <template v-else>
-      <div>{{ quizIndex + 1 }}/{{ quizList.questions.length }}</div>
+      <el-progress
+        class="progress"
+        type="circle"
+        :percentage="Math.floor((quizIndex / quizList.questions.length) * 100)"
+      ></el-progress>
       <QuizComponent
         :quizOne="quiz"
         @answerResult="answerResult"
@@ -127,3 +144,14 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="postcss" scoped>
+.progress {
+  margin: 10px;
+}
+.info {
+  height: 70vh;
+}
+.info >>> .el-alert__title {
+  font-size: 20px;
+}
+</style>

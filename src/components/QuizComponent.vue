@@ -1,8 +1,12 @@
-<template>
-  <div>{{ quiz.question }}</div>
-  <el-radio-group v-model="answerValue">
+<template class="quiz">
+  <div class="question">{{ quiz.question }}</div>
+  <el-radio-group class="radio-group" v-model="answerValue">
     <template v-for="selection in quiz.selections" :key="selection">
-      <el-radio :label="selection.explanation">{{ selection.word }}</el-radio>
+      <el-row class="radio"
+        ><el-radio :label="selection.explanation">{{
+          selection.word
+        }}</el-radio></el-row
+      >
     </template>
   </el-radio-group>
   <br /><br />
@@ -10,9 +14,9 @@
     type="primary"
     :plain="result"
     @click="checkResult(quiz.question, answerValue)"
-    >解答</el-button
+    >回答</el-button
   >
-  <el-button type="info" @click="pauseQuiz">リセット</el-button>
+  <el-button type="info" @click="pauseQuiz">中断</el-button>
 </template>
 <script lang="ts">
 import { Question } from "@/types/questions";
@@ -50,3 +54,16 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="postcss" scoped>
+.quiz {
+  width: 100%;
+}
+.question {
+  word-break: break-all;
+  width: 100%;
+  margin: 10px;
+}
+.el-radio {
+  white-space: normal;
+}
+</style>

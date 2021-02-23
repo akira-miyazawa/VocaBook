@@ -1,24 +1,39 @@
 <template>
   <div id="header" class="header">
     <el-row>
-      <el-col :span="8" class="user-auth">
+      <el-col :span="8" class="input-area">
         <el-row>
           <el-col :span="16">
             <el-input
+              class="input"
               type="text"
+              placeholder="30文字以下"
               v-model="dictTitle"
               :disabled="isVisibleQuiz"
               clearable
             />
           </el-col>
           <el-col :span="8">
-            <el-button
-              @click="createDict(dictTitle)"
-              :disabled="isVisibleQuiz"
-              type="primary"
-              plain
-              >新規作成</el-button
-            >
+            <template v-if="!isInputLimit">
+              <el-button
+                @click="createDict(dictTitle)"
+                :disabled="isVisibleQuiz"
+                type="success"
+                plain
+                ><i class="el-icon-magic-stick" /> 新規作成</el-button
+              >
+            </template>
+            <template v-else>
+              <el-alert
+                class="alert"
+                title="文字数上限です"
+                type="error"
+                center
+                :closable="false"
+                show-icon
+              >
+              </el-alert>
+            </template>
           </el-col>
         </el-row>
       </el-col>
@@ -492,9 +507,20 @@
           </g>
         </svg>
       </el-col>
-      <el-col :span="8" class="user-auth">
-        <i class="el-icon-user-solid">{{ displayName }} さん</i>
-        <el-button type="info" @click="logout">ログアウト</el-button>
+      <el-col :span="8" class="user-area">
+        <el-dropdown>
+          <span class="user-auth">
+            <i class="el-icon-user-solid" />{{ displayName
+            }}<i class="el-icon-arrow-down el-icon--right" />
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item size="mini" @click="logout"
+                >ログアウト</el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </el-col>
     </el-row>
   </div>
@@ -516,9 +542,15 @@ export default defineComponent({
     const dictTitle = ref<string>("");
     const isVisibleQuiz = computed(() => props.isVisible);
     const isEmpty = ref<boolean>(false);
+    const isInputLimit = ref<boolean>(false);
 
     watch(dictTitle, () => {
       dictTitle.value = dictTitle.value.replace(/\s+/g, "");
+      if (dictTitle.value.length > 30) {
+        isInputLimit.value = true;
+        return;
+      }
+      isInputLimit.value = false;
     });
 
     function createDict(title: string) {
@@ -544,6 +576,7 @@ export default defineComponent({
       dictTitle,
       createDict,
       isVisibleQuiz,
+      isInputLimit,
     };
   },
 });
@@ -576,8 +609,17 @@ export default defineComponent({
 .icon {
   text-align: center;
 }
-.user-auth {
+.input-area {
   margin-top: auto;
   margin-bottom: auto;
+}
+.user-area {
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: right;
+}
+.user-auth {
+  font-size: 20px;
+  margin-right: 30px;
 }
 </style>

@@ -4,30 +4,44 @@
       :isVisible="isVisibleQuiz"
       @createDict="createDictionary"
     />
-    <el-row>
-      <el-col :span="6">
-        <DictionaryListComponent
-          :posts="postsData.posts"
-          :dict="dictionary"
-          :isVisible="isVisibleQuiz"
-          @createDict="createDictionary"
-          @deletDict="deletDictionary"
-          @updateDict="updateDictionary"
-          @addWord="addWordExplanation"
-          @insertValue="insertDisplayValue"
-        />
-      </el-col>
-      <el-col :span="18">
-        <WordListComponent
-          :dict="dictionary"
-          :isVisible="isVisibleQuiz"
-          @deleteWord="deleteWordExplanation"
-          @updateWord="updateWordExlanation"
-          @substituteTrue="substituteTrue"
-          @substituteFalse="substituteFalse"
-        />
-      </el-col>
-    </el-row>
+    <template v-if="postsData.posts.length > 0">
+      <el-row>
+        <el-col :span="6">
+          <DictionaryListComponent
+            :posts="postsData.posts"
+            :dict="dictionary"
+            :isVisible="isVisibleQuiz"
+            @createDict="createDictionary"
+            @deletDict="deletDictionary"
+            @updateDict="updateDictionary"
+            @addWord="addWordExplanation"
+            @insertValue="insertDisplayValue"
+          />
+        </el-col>
+        <el-col :span="18">
+          <WordListComponent
+            :dict="dictionary"
+            :isVisible="isVisibleQuiz"
+            @deleteWord="deleteWordExplanation"
+            @updateWord="updateWordExlanation"
+            @substituteTrue="substituteTrue"
+            @substituteFalse="substituteFalse"
+          />
+        </el-col>
+      </el-row>
+    </template>
+    <el-alert
+      v-else
+      class="info"
+      title="ようこそVocaBookへ"
+      type="success"
+      center
+      :closable="false"
+    >
+      新規作成からあなただけの辞書を作りましょう<i
+        class="el-icon-magic-stick"
+      />
+    </el-alert>
   </div>
 </template>
 
@@ -273,3 +287,15 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="postcss" scoped>
+.info {
+  height: 85vh;
+}
+.info >>> .el-alert__title {
+  font-size: 50px;
+}
+.info >>> .el-alert__description {
+  margin: 10px;
+  font-size: 20px;
+}
+</style>

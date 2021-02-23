@@ -2,7 +2,7 @@
   <div id="word-list">
     <el-row class="list-header">
       <el-col :span="8">
-        <el-radio-group v-model="isStartQuestion">
+        <el-radio-group class="radio-group" v-model="isStartQuestion">
           <el-radio-button :label="false" :disabled="isVisibleQuiz"
             >一覧</el-radio-button
           >
@@ -10,12 +10,24 @@
         </el-radio-group></el-col
       >
       <el-col :span="8"
-        ><h2>{{ dictionary.title }}</h2></el-col
+        ><h3 class="title">{{ dictionary.title }}</h3></el-col
       >
       <el-col :span="8">単語数: {{ dictionary.words.length }}</el-col>
     </el-row>
     <template v-if="!isStartQuestion">
+      <template v-if="dictionary.words.length === 0">
+        <el-alert
+          class="info"
+          title="＋ボタンからあなたのVocaBookを作ろう"
+          type="success"
+          center
+          :closable="false"
+          ><i class="el-icon-info" />
+          ワードと解説を登録して、あなただけの辞書を作ることができます
+        </el-alert>
+      </template>
       <el-table
+        v-else
         :data="dictionary.words"
         :show-header="false"
         class="table"
@@ -199,25 +211,35 @@ export default defineComponent({
   border-bottom: 1px solid #b9b5b5;
   align-items: center;
 }
+.title {
+  word-break: break-all;
+}
 .table {
-  width: 100%;
   max-height: 70vh;
   overflow: scroll;
   margin-right: 10px;
-}
-.el-table__row >>> td {
-  width: 30%;
-}
-.el-table_1_column_2 {
-  width: 60%;
-}
-.el-table_1_column_3 {
-  width: 10%%;
 }
 .el-table::before {
   left: 0;
   bottom: 0;
   width: 0;
   height: 0;
+}
+.info {
+  height: 70vh;
+}
+.info >>> .el-alert__title {
+  font-size: 20px;
+}
+.radio-group
+  >>> .el-radio-button__orig-radio:checked
+  + .el-radio-button__inner {
+  color: #fff;
+  background-color: #909399;
+  border-color: #909399;
+  box-shadow: -1px 0 0 0 #909399;
+}
+.radio-group:hover >>> .el-radio-button__inner {
+  color: #909399;
 }
 </style>
