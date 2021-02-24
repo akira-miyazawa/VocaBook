@@ -37,6 +37,11 @@
       type="success"
       center
       :closable="false"
+      v-loading="loading"
+      element-loading-text="Loading..."
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(255,255,255,255)"
+      element-loading-opacity="0"
     >
       新規作成からあなただけの辞書を作りましょう<i
         class="el-icon-magic-stick"
@@ -55,6 +60,7 @@ import { DictContents, Dictionary } from "@/types/dectionary";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -62,7 +68,7 @@ export default defineComponent({
     DictionaryListComponent,
     WordListComponent,
   },
-  setup() {
+  setup(props, context) {
     const postsData = reactive<any>({ posts: [] });
     const dictionary = reactive<Dictionary>({
       title: "",
@@ -72,6 +78,8 @@ export default defineComponent({
       uid: "",
     });
     const isVisibleQuiz = ref<boolean>(false);
+    const loading = ref<boolean>(true);
+    const router = useRouter();
 
     const db = firebase.firestore();
 
@@ -89,9 +97,13 @@ export default defineComponent({
               }
             });
           });
+      } else {
+        router.push("/login");
       }
+      setTimeout(() => {
+        loading.value = false;
+      }, 500);
     });
-
     async function createDictionary(dictTitle: string) {
       const auth = await db
         .collection("user")
@@ -274,6 +286,8 @@ export default defineComponent({
       postsData,
       dictionary,
       isVisibleQuiz,
+      loading,
+      router,
       createDictionary,
       deletDictionary,
       updateDictionary,

@@ -498,7 +498,6 @@ export default defineComponent({
     const imgRef = ref<SVGImageElement>();
 
     onMounted(() => {
-      console.log(imgRef.value?.id);
       new Vivus(`${imgRef.value?.id}`, { duration: 200 }, (obj) => {
         obj.el.classList.add("finished");
       });

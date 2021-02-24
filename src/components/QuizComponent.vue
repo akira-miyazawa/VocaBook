@@ -10,10 +10,7 @@
     </template>
   </el-radio-group>
   <br /><br />
-  <el-button
-    type="primary"
-    :plain="result"
-    @click="checkResult(quiz.question, answerValue)"
+  <el-button type="success" @click="checkResult(quiz.question, answerValue)"
     >回答</el-button
   >
   <el-button type="info" @click="pauseQuiz">中断</el-button>
@@ -65,5 +62,12 @@ export default defineComponent({
 }
 .el-radio {
   white-space: normal;
+}
+.el-radio >>> .el-radio__input.is-checked .el-radio__inner {
+  border-color: #67c23a;
+  background: #67c23a;
+}
+.el-radio >>> .el-radio__input.is-checked + .el-radio__label {
+  color: #67c23a;
 }
 </style>

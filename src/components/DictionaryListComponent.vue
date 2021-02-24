@@ -102,7 +102,7 @@
           <el-button @click="isShowModalWindow = false">キャンセル</el-button>
           <el-button
             @click="addWord(dictionary, dictContents)"
-            :disabled="isEmpty || isDuplicate"
+            :disabled="isEmpty || isDuplicate || isInputLimit"
             >追加する</el-button
           >
         </span>
@@ -162,7 +162,6 @@ export default defineComponent({
         return;
       }
       isEmpty.value = false;
-      console.log(dictContents.word.length);
       if (
         dictContents.word.length > 30 ||
         dictContents.explanation.length > 100
@@ -256,16 +255,18 @@ export default defineComponent({
 }
 .card >>> .el-card {
   border: 1px solid #b9b5b5;
+  background-color: #dddada;
   box-shadow: 2px -10px 5px #b9b5b5;
   border-bottom-right-radius: 2000px 300px;
   border-bottom-left-radius: 2000px 300px;
 }
 .selected >>> .el-card {
-  background-color: #b3d8ff;
+  border: 1px solid #b9b5b5;
+  box-shadow: 2px -10px 5px #b9b5b5;
+  background-color: #fff;
+  border-bottom-right-radius: 2000px 300px;
+  border-bottom-left-radius: 2000px 300px;
 }
-/* .card-inside {
-  margin: 20px;
-} */
 .text-inside {
   border: 1px solid #b9b5b5;
   border-bottom-right-radius: 2000px 300px;
@@ -275,22 +276,14 @@ export default defineComponent({
   align-items: center;
   overflow: scroll;
 }
+.text-inside::-webkit-scrollbar {
+  display: none;
+}
 .text {
   margin: 5px;
 }
 .button {
   margin-top: 5px;
   margin-left: 0;
-}
-.anime-enter {
-  transition: opacity 5s;
-}
-.anime-enter-active {
-}
-.anime-leave-active {
-  transition: opacity 5s;
-}
-.anime-leave-to {
-  transition: opacity 5s;
 }
 </style>

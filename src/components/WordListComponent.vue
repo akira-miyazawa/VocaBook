@@ -71,6 +71,13 @@
     />
     <el-dialog class="modal-window" v-model="isShowModalWindow">
       <el-alert
+        title="文字数上限に達しています"
+        type="error"
+        show-icon
+        :closable="false"
+        v-if="isInputLimit"
+      />
+      <el-alert
         title="すでに保存されている内容があります"
         type="error"
         show-icon
@@ -79,10 +86,18 @@
       ></el-alert>
       <el-form>
         <el-form-item label="ワード">
-          <el-input v-model="dictContents.word"></el-input>
+          <el-input
+            v-model="dictContents.word"
+            placeholder="30文字以下"
+          ></el-input>
         </el-form-item>
         <el-form-item label="解説">
-          <el-input v-model="dictContents.explanation"></el-input>
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            v-model="dictContents.explanation"
+            placeholder="100文字以下"
+          ></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -90,7 +105,7 @@
           <el-button @click="isShowModalWindow = false">キャンセル</el-button>
           <el-button
             @click="updateWord(dictionary, dictContents)"
-            :disabled="isEmpty || isDuplicate"
+            :disabled="isEmpty || isInputLimit || isDuplicate"
             >変更する</el-button
           >
         </span>
@@ -126,6 +141,7 @@ export default defineComponent({
     const dictContentsIndex = ref<number>();
     const isStartQuestion = ref<boolean>(false);
     const isEmpty = ref<boolean>(false);
+    const isInputLimit = ref<boolean>(false);
     const isDuplicate = ref<boolean>(false);
 
     watch(dictContents, (newContents) => {
@@ -136,6 +152,14 @@ export default defineComponent({
         return;
       }
       isEmpty.value = false;
+      if (
+        dictContents.word.length > 30 ||
+        dictContents.explanation.length > 100
+      ) {
+        isInputLimit.value = true;
+        return;
+      }
+      isInputLimit.value = false;
     });
 
     watch(dictContents, () => {
@@ -191,6 +215,7 @@ export default defineComponent({
       dictContentsIndex,
       isStartQuestion,
       isEmpty,
+      isInputLimit,
       isDuplicate,
       updateWord,
       deleteWord,

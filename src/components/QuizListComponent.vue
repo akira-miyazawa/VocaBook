@@ -13,20 +13,28 @@
         </el-alert>
       </template>
       <template v-else>
-        <el-button
-          @click="setQuizList(originWords.words, isVisibleQuiz)"
+        <el-alert
+          class="info"
+          title="さあ、君のボキャブラリーをあげていこう"
           type="success"
-          icon="el-icon-success"
-          plain
+          center
+          :closable="false"
         >
-          クイズスタート
-        </el-button>
+          <el-button
+            @click="setQuizList(originWords.words, isVisibleQuiz)"
+            type="success"
+            icon="el-icon-success"
+          >
+            クイズスタート
+          </el-button>
+        </el-alert>
       </template>
     </template>
     <template v-else>
       <el-progress
         class="progress"
         type="circle"
+        color="#67c23a"
         :percentage="Math.floor((quizIndex / quizList.questions.length) * 100)"
       ></el-progress>
       <QuizComponent
@@ -145,8 +153,12 @@ export default defineComponent({
 });
 </script>
 <style lang="postcss" scoped>
+#quiz-list {
+  height: 70vh;
+  background-color: #f0f9eb;
+}
 .progress {
-  margin: 10px;
+  margin: 15px;
 }
 .info {
   height: 70vh;
