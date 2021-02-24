@@ -153,6 +153,7 @@ export default defineComponent({
         .doc(documentId)
         .update({ title: title });
       postsData.posts[index].title = title;
+      dictionary.title = title;
     }
 
     async function addWordExplanation(
